@@ -2,12 +2,6 @@
 
 ## In Progress
 
-- [ ] **M0 — scaffold verified green.** Run `./test` and confirm both flake
-  checks pass on the untouched scaffold *before* changing anything. A scaffold
-  that was never green is not a baseline.
-  - [ ] `zig build` emits `.fingerprint` into `build.zig.zon` on first run —
-    commit that value.
-  - [ ] `nix flake check` / `./test` green.
 - [ ] **M1 — add tiffz as a dependency.** rawz parses RAW *semantics*; tiffz
   parses the container. Do NOT reimplement TIFF.
   - [ ] Add tiffz to `build.zig.zon` (pin a SHA).
@@ -65,3 +59,9 @@
   TIFF/EP standard.
 
 ## Completed
+
+- [x] **M0 — scaffold verified green** (2026-07-31 13:42 EDT).
+  - [x] Confirmed `.fingerprint = 0x79c9610f3a3708b0` was already committed in
+    the untouched scaffold (`038340c`).
+  - [x] `./test` passed both the sandboxed ReleaseSafe test check and the
+    ReleaseFast package build before any project-code change.
