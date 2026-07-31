@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Build via nix (canonical, reproducible). --debug / --test for other modes.
+set -u
+mode="ReleaseFast"
+case "${1:-}" in
+	--debug) mode="Debug" ;;
+	--test)  mode="ReleaseSafe" ;;
+esac
+nix build --no-link --print-out-paths 2>&1 || exit 1

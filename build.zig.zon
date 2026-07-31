@@ -1,0 +1,16 @@
+.{
+	.name = .rawz,
+	.version = "0.1.0",
+	.minimum_zig_version = "0.15.2",
+	// tiffz is added by the first real task — rawz depends on it for
+	// container parsing (most RAW formats ARE TIFF containers).
+	.dependencies = .{},
+	.paths = .{
+		"build.zig",
+		"build.zig.zon",
+		"src",
+		"include",
+		"cli",
+	},
+	.fingerprint = 0x79c9610f3a3708b0,
+}

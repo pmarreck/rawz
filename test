@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Master test runner. Accumulates subtest failures; exit code = failure count.
+# NOTE: no `set -e` — errexit would abort on the non-zero exits that
+# error-path tests legitimately produce. `set -u` only.
+set -u
+
+system="$(nix eval --raw --impure --expr 'builtins.currentSystem' 2>/dev/null)"
+failures=0
+
+echo "==> zig unit tests (nix flake check .#test, sandboxed, ReleaseSafe)"
+if nix build ".#checks.${system}.test" --no-link 2>&1; then
+	echo "    ok"
+else
+	echo "    FAIL: zig unit tests" >&2
+	failures=$((failures + 1))
+fi
+
+echo "==> package builds (nix flake check .#build)"
+if nix build ".#checks.${system}.build" --no-link 2>&1; then
+	echo "    ok"
+else
+	echo "    FAIL: package build" >&2
+	failures=$((failures + 1))
+fi
+
+if [ "$failures" -eq 0 ]; then
+	echo "All checks passed."
+else
+	echo "${failures} check(s) failed." >&2
+fi
+exit "$failures"

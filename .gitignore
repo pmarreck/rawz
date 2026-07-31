@@ -1,0 +1,18 @@
+# Zig build artifacts
+zig-out/
+zig-cache/
+.zig-cache/
+
+# Nix build result symlinks
+result
+result-*
+
+# macOS
+.DS_Store
+
+# LLM inbox (inter-project messages)
+inbox/
+
+# Tooling indexes
+.codescan/
+.serena/
