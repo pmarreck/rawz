@@ -1,0 +1,7 @@
+# Mechatron Prime build targets for pmarreck/rawz.
+#
+# Both attributes verified to build individually before this manifest landed.
+# `test` runs the suite under ReleaseSafe (the fleet floor — a ReleaseFast
+# suite cannot observe UB); `build` is the ReleaseFast shipped artifact.
+checks.x86_64-linux.build
+checks.x86_64-linux.test
