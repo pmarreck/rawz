@@ -1,0 +1,8 @@
+# Dirtree: Stateful directory trees in the CLI for humans and LLMs. https://github.com/pmarreck/dirtree
+ver=1.2
+annotate=[
+	build.zig = Build graph wiring rawz core, C ABI/CLI, tests, and pinned tiffz module with zlib paths
+	build.zig.zon = Zig 0.16 package manifest pinning the tiffz container dependency
+	flake.nix = Reproducible ReleaseFast package and ReleaseSafe tests with fixed-output Zig dependency cache
+	src/lib.zig = Pure rawz library/FFI root layered on the imported tiffz container parser
+]

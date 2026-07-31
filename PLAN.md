@@ -2,14 +2,6 @@
 
 ## In Progress
 
-- [ ] **M1 — add tiffz as a dependency.** rawz parses RAW *semantics*; tiffz
-  parses the container. Do NOT reimplement TIFF.
-  - [ ] Add tiffz to `build.zig.zon` (pin a SHA).
-  - [ ] Flip `hasDeps = true` in `flake.nix` and regenerate `zigDepsHash`
-    (set to `pkgs.lib.fakeHash`, `nix build`, take the printed hash).
-  - [ ] Curiosity poke: an **empty-tree FOD hash usually means the builder
-    could not fetch** — if the hash looks suspiciously constant, that is the
-    failure, not success.
 - [ ] **M2 — format classification, as a set classifier.** Answer "is this a
   photographic TIFF or camera RAW, and which vendor?" from tiffz-reported tags:
   `PhotometricInterpretation == 32803` (CFA), `DNGVersion`, `Make`/`Model`,
@@ -60,6 +52,13 @@
 
 ## Completed
 
+- [x] **M1 — added tiffz as a dependency** (2026-07-31 13:47 EDT).
+  - [x] Pinned tiffz `d03c9d2` and raised the package minimum to Zig 0.16.0.
+  - [x] Proved the import contract red before wiring the module, then green.
+  - [x] Added zlib to native and sandbox environments and forwarded explicit
+    paths for Darwin builds.
+  - [x] Regenerated the non-empty dependency FOD hash and proved its offline
+    cache with both canonical `./test` checks.
 - [x] **M0 — scaffold verified green** (2026-07-31 13:42 EDT).
   - [x] Confirmed `.fingerprint = 0x79c9610f3a3708b0` was already committed in
     the untouched scaffold (`038340c`).

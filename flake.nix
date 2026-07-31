@@ -14,9 +14,9 @@
         version = "0.1.0";
         zigPkg = pkgs.zig;
 
-        # Fixed-output derivation for Zig deps (tiffz, once added).
+        # Fixed-output derivation for the Zig dependency graph rooted at tiffz.
         # To regenerate: set to pkgs.lib.fakeHash, `nix build`, use printed hash.
-        zigDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        zigDepsHash = "sha256-ga6yumDkSM78QNX7QSEthKQoNpOMKv4Aj0UTN30q+2Q=";
         zigDeps = pkgs.stdenv.mkDerivation {
           pname = "${pname}-zig-deps";
           inherit version;
@@ -37,11 +37,7 @@
           dontInstall = true;
         };
 
-        # Only wire zigDeps in once build.zig.zon actually has dependencies;
-        # an empty dep set makes the FOD hash meaningless (see the fleet's
-        # "empty-tree FOD hash means the builder could not fetch" lesson).
-        hasDeps = false;
-        depSetup = pkgs.lib.optionalString hasDeps ''
+        depSetup = ''
           export ZIG_GLOBAL_CACHE_DIR=$TMPDIR/zig-cache
           mkdir -p $ZIG_GLOBAL_CACHE_DIR
           cp -r ${zigDeps}/* $ZIG_GLOBAL_CACHE_DIR/
@@ -52,13 +48,16 @@
           inherit pname version;
           src = ./.;
           nativeBuildInputs = [ zigPkg ];
+          buildInputs = [ pkgs.zlib ];
           dontConfigure = true;
           dontFixup = true;
           buildPhase = ''
             export HOME=$TMPDIR
             ${depSetup}
             ${pkgs.lib.optionalString pkgs.stdenv.isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
-            zig build -Doptimize=ReleaseFast --prefix $out
+            zig build -Doptimize=ReleaseFast --prefix $out \
+              -Dzlib-include=${pkgs.zlib.dev}/include \
+              -Dzlib-lib=${pkgs.zlib.out}/lib
           '';
           dontInstall = true;
         };
@@ -70,6 +69,7 @@
             inherit version;
             src = ./.;
             nativeBuildInputs = [ zigPkg ];
+            buildInputs = [ pkgs.zlib ];
             dontConfigure = true;
             dontFixup = true;
             buildPhase = ''
@@ -89,6 +89,8 @@
               #
               # Shipped artifact and benchmarks stay ReleaseFast.
               timeout 600 zig build test -Doptimize=ReleaseSafe \
+                -Dzlib-include=${pkgs.zlib.dev}/include \
+                -Dzlib-lib=${pkgs.zlib.out}/lib \
                 || { echo "Tests failed"; exit 1; }
             '';
             installPhase = ''
@@ -99,7 +101,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = [ zigPkg pkgs.hyperfine pkgs.jq pkgs.coreutils ];
+          packages = [ zigPkg pkgs.zlib pkgs.hyperfine pkgs.jq pkgs.coreutils ];
         };
       });
 }
