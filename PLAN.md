@@ -2,19 +2,14 @@
 
 ## In Progress
 
-- [ ] **M2 — format classification, as a set classifier.** Answer "is this a
-  photographic TIFF or camera RAW, and which vendor?" from tiffz-reported tags:
-  `PhotometricInterpretation == 32803` (CFA), `DNGVersion`, `Make`/`Model`,
-  `NewSubfileType`/SubIFD layout.
-  - [ ] Test as a **classifier over sets** (sensitivity + specificity), not a
-    predicate over examples. Must include the real-world trap: `pc260001.tif`
-    is an **ORF**, not a TIFF — validate's sweep published 0/0/0 for the wrong
-    format because of exactly this.
 - [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives
   in the consumer app purely by accident of history.
-  - [ ] **Sequencing constraint: do NOT land this while validate is mid-release.**
-    Changing validate's dependency graph during a release push is not worth it.
-    Build new work in rawz first; migrate when Peter says validate has shipped.
+  - [ ] Sequencing constraint lifted by Peter via Einstein (2026-07-31 13:58
+    EDT): validate is not mid-release, so the migration may proceed after M2.
+  - [ ] Coordinate the validate-side change through its agent with the moved
+    path, rawz import path, and exact SHA to pin.
+  - [ ] Keep both repositories green and stage only explicit paths; never sweep
+    other agents' concurrent work into a commit.
 
 ## Next
 
@@ -40,8 +35,16 @@
   pass = genuinely undetectable, and Mecha RotShield parity is the honest
   answer. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).
-- [ ] Mechatron Prime CI: invoke the `mechatron-ci` skill once flake outputs are
-  real and locally verified.
+- [ ] Mechatron Prime CI: land Einstein's `.mechatron-prime/targets` only with
+  the green M2 commit.
+  - [ ] Stage every new source explicitly before Nix validation; Git-backed
+    flakes cannot see untracked files.
+  - [ ] Directly build `checks.x86_64-linux.build` and
+    `checks.x86_64-linux.test`, then run canonical `./test`.
+  - [ ] Push `yolo`, independently verify `origin/yolo == HEAD`, and tell
+    Einstein the exact SHA so he can provision the webhook with Peter's sudo.
+  - [ ] Verify that exact commit reaches a terminal `PASSING` result; HTTP 200
+    delivery alone is not queue/acceptance evidence.
 
 ## Deferred / explicitly not doing
 
@@ -52,6 +55,22 @@
 
 ## Completed
 
+- [x] **M2 — format classification, as a set classifier** (2026-08-03 11:19
+  EDT). Answers "is this a photographic TIFF or camera RAW, and which vendor?"
+  from tiffz-reported semantic evidence.
+  - [x] Separated the allocation-free `Evidence` policy from TIFF byte/tag
+    decoding in the tiffz adapter.
+  - [x] Classified CR2/NEF/ARW/ORF/PEF/DNG/3FR/RW2 sensitivity and photographic
+    TIFF specificity cases in one table, including the `pc260001.tif` ORF trap.
+  - [x] Normalized vendor ASCII without allocating and kept bounded prefixes of
+    long Make/Model values.
+  - [x] Traversed linked, Exif, nested, repeated, and cyclic IFD references with
+    one deduplicated, aggregate-limited offset set.
+  - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded
+    every disposition in `CODE_REVIEW.md`.
+  - [x] Published stable append-only C format/status enums and
+    `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
+  - [x] Passed direct sandboxed build/test checks and canonical `./test`.
 - [x] **M1 — added tiffz as a dependency** (2026-07-31 13:47 EDT).
   - [x] Pinned tiffz `d03c9d2` and raised the package minimum to Zig 0.16.0.
   - [x] Proved the import contract red before wiring the module, then green.

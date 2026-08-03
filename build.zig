@@ -22,6 +22,23 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         });
     const tiffz_mod = tiffz_dep.module("tiffz");
+    // Zig 0.16 puts system libraries from imported modules inside a static
+    // archive. Remove zlib from the dependency graph here, then attach `-lz`
+    // only to final executables and named Zig modules below.
+    for (tiffz_mod.getGraph().modules) |module| {
+        var link_index: usize = 0;
+        while (link_index < module.link_objects.items.len) {
+            const remove = switch (module.link_objects.items[link_index]) {
+                .system_lib => |system_lib| std.mem.eql(u8, system_lib.name, "z"),
+                else => false,
+            };
+            if (remove) {
+                _ = module.link_objects.orderedRemove(link_index);
+            } else {
+                link_index += 1;
+            }
+        }
+    }
 
     // ── Core library module (pure Zig, no I/O) ──────────────────────────
     // Exposed for downstream Zig consumers (validate). Per the fleet's
@@ -33,6 +50,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     core_mod.addImport("tiffz", tiffz_mod);
+    core_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
 
     // ── Static library with C ABI (the FFI boundary) ────────────────────
     const lib_mod = b.createModule(.{
@@ -60,6 +78,7 @@ pub fn build(b: *std.Build) void {
         .flags = &.{ "-std=c11", "-Wall", "-Wextra", "-Wpedantic" },
     });
     cli_mod.addIncludePath(b.path("include"));
+    cli_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
     // Zig 0.16: linkLibrary lives on the MODULE, not on Compile.
     // `cli.linkLibrary(lib)` (the 0.12-0.15 form) fails with
     // "no field or member function named 'linkLibrary' in 'Build.Step.Compile'".
@@ -81,6 +100,26 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     test_mod.addImport("tiffz", tiffz_mod);
+    test_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
     const run_tests = b.addRunArtifact(b.addTest(.{ .root_module = test_mod }));
-    b.step("test", "Run unit tests").dependOn(&run_tests.step);
+    const test_step = b.step("test", "Run unit and C ABI integration tests");
+    test_step.dependOn(&run_tests.step);
+
+    const ffi_test_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    ffi_test_mod.addCSourceFile(.{
+        .file = b.path("tests/integration/classification.c"),
+        .flags = &.{ "-std=c11", "-Wall", "-Wextra", "-Wpedantic", "-Werror" },
+    });
+    ffi_test_mod.addIncludePath(b.path("include"));
+    ffi_test_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
+    ffi_test_mod.linkLibrary(lib);
+    const ffi_test = b.addExecutable(.{
+        .name = "rawz-classification-ffi-test",
+        .root_module = ffi_test_mod,
+    });
+    test_step.dependOn(&b.addRunArtifact(ffi_test).step);
 }
