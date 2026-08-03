@@ -4,12 +4,28 @@
 
 - [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives
   in the consumer app purely by accident of history.
-  - [ ] Sequencing constraint lifted by Peter via Einstein (2026-07-31 13:58
+  - [x] Sequencing constraint lifted by Peter via Einstein (2026-07-31 13:58
     EDT): validate is not mid-release, so the migration may proceed after M2.
   - [ ] Coordinate the validate-side change through its agent with the moved
     path, rawz import path, and exact SHA to pin.
   - [ ] Keep both repositories green and stage only explicit paths; never sweep
     other agents' concurrent work into a commit.
+  - [x] Reproduce validate's packed-12 behavior in rawz before moving code, and
+    add the missing maximum-dimension overflow case.
+  - [x] Give rawz a focused in-memory MSB bit reader for the PEF Huffman path;
+    validate's shared media reader stays with its other consumers.
+  - [ ] Preserve the existing public names so validate's change is an import
+    replacement, then publish the exact rawz SHA for its agent to pin.
+  - [ ] Correct validate's dispatch contract: TIFF compression 32773 is
+    PackBits, so tiffz must decompress it before `validatePefPacked12`; Pentax's
+    private Huffman compression is 65535.
+  - [x] Curiosity poke: malformed Huffman tables and unsupported bit depths
+    must return typed errors without a trap or an unbounded decode loop.
+  - [x] Rerun all 13 deep-review dimensions sequentially after the prior OOM;
+    fix every functional, coverage, complexity, clarity, and error-domain
+    finding before publishing the rawz migration commit.
+  - [x] Pass direct sandboxed build/test checks and canonical `./test` for the
+    rawz-side migration.
 
 ## Next
 
@@ -35,16 +51,6 @@
   pass = genuinely undetectable, and Mecha RotShield parity is the honest
   answer. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).
-- [ ] Mechatron Prime CI: land Einstein's `.mechatron-prime/targets` only with
-  the green M2 commit.
-  - [ ] Stage every new source explicitly before Nix validation; Git-backed
-    flakes cannot see untracked files.
-  - [ ] Directly build `checks.x86_64-linux.build` and
-    `checks.x86_64-linux.test`, then run canonical `./test`.
-  - [ ] Push `yolo`, independently verify `origin/yolo == HEAD`, and tell
-    Einstein the exact SHA so he can provision the webhook with Peter's sudo.
-  - [ ] Verify that exact commit reaches a terminal `PASSING` result; HTTP 200
-    delivery alone is not queue/acceptance evidence.
 
 ## Deferred / explicitly not doing
 
@@ -71,6 +77,11 @@
   - [x] Published stable append-only C format/status enums and
     `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
   - [x] Passed direct sandboxed build/test checks and canonical `./test`.
+- [x] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
+  - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and
+    independently verified `origin/yolo` matched.
+  - [x] Mechatron built the manifest-selected package and test targets for that
+    exact commit and reported terminal `success` in 20 seconds.
 - [x] **M1 — added tiffz as a dependency** (2026-07-31 13:47 EDT).
   - [x] Pinned tiffz `d03c9d2` and raised the package minimum to Zig 0.16.0.
   - [x] Proved the import contract red before wiring the module, then green.

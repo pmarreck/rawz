@@ -14,6 +14,7 @@ const std = @import("std");
 const tiffz = @import("tiffz");
 
 pub const classification = @import("classification.zig");
+pub const pef_decoder = @import("pef_decoder.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
 
 // ── C FFI exports ───────────────────────────────────────────────────────
@@ -177,8 +178,17 @@ test "every Zig format and error has one stable C mapping" {
     for (status_cases) |case| try std.testing.expectEqual(case[1], statusFromError(case[0]));
 }
 
-test "tiffz container parser is available to the raw semantics layer" {
+test "public parsing modules are available through rawz" {
     _ = tiffz;
     _ = classification;
     _ = tiff_adapter;
+}
+
+test "PEF decoder is available through the public rawz module" {
+    const complete = [_]u8{0} ** 12;
+
+    try std.testing.expectEqual(
+        null,
+        pef_decoder.validatePefPacked12(&complete, 4, 2),
+    );
 }

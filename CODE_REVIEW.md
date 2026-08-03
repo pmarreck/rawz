@@ -66,3 +66,41 @@ tests independently exercise raw TIFF bytes through tiffz, and the C test
 compiles against the published header. Real-file sensitivity and differential
 comparison against darktable/rawspeed remain the M5 and M6 controls; synthetic
 fixtures do not substitute for those corpus results.
+
+# M3 Code Review
+
+Reviewed 2026-08-03 across the same 13 dimensions. Reviewers ran sequentially
+to keep peak memory bounded. One reviewer exceeded its time bound without a
+report; its bounded retry completed before the review moved on.
+
+## Result
+
+The rawz-side PEF migration is green after resolving every functional,
+coverage, complexity, clarity, and error-domain finding. The remaining
+ownership advisory is the planned validate-side cutover, so M3 stays open until
+validate pins the exact rawz commit and removes its duplicate module.
+
+| Finding | Severity | Disposition |
+|---|---:|---|
+| Packed size ignored per-row byte alignment for odd widths | Warning | Fixed with a 1×2 regression: three bytes truncate, four pass |
+| Fixed-width lookup rejected a valid byte-padded final short code | Warning | Added non-consuming zero-padded peeks while retaining strict code and payload consumption |
+| Misaligned Huffman ranges could cross prefixes or wrap | Warning | Require aligned, non-wrapping ranges and reject overlap |
+| Successful Huffman coverage exercised only one zero-difference pixel | High | Added multi-row positive/negative differences, both predictor lanes, and pixel overflow |
+| Code and difference-payload truncation were uncovered | Medium | Added final-bit cases for each distinct truncation path |
+| Malformed table bounds had partial coverage | Medium | Added truncated layout, excessive code length, and out-of-domain code tests |
+| Padded bit-reader boundaries were partial | Advisory | Added partial-position, exhaustion, zero-count, 32-bit, and exact-skip cases |
+| Surplus packed bytes were an implicit contract | Advisory | Locked in acceptance of caller-owned trailing bytes |
+| Public smoke test repeated decoder unit cases | Advisory | Reduced it to one export-reachability call |
+| Huffman table representation hid invariants in a packed integer and reserved slot | Medium | Replaced it with named layout constants and `HuffmanEntry` fields |
+| Module text called packed samples unpacked | Advisory | Corrected the module contract |
+| Untrusted dimensions could authorize billions of decode iterations | Warning | Added `PefDecodeLimits`, a bounded default, and a caller-adjustable `max_pixels` gate |
+| An unassigned compressed code was blamed on valid table metadata | Medium | Added append-only `InvalidHuffmanCode` distinct from `InvalidHuffmanTable` |
+| Zero dimensions share `DimensionsTooLarge` with arithmetic overflow | Advisory | Retained for validate source/behavior compatibility; documented validation precedence |
+| Lookup table uses about 8 KiB of stack | Advisory | Accepted: fixed-size, allocation-free, and safe on supported CLI targets; revisit for constrained-thread consumers |
+| validate still compiles its local PEF decoder | High | Pending M3 cutover after rawz publishes an exact green SHA |
+
+Tests are deterministic and allocation-free. Two timed ReleaseSafe runs in the
+speed review completed in 0.409 and 0.423 seconds. Zig 0.16 formatting, casts,
+shifts, wrapping predictor arithmetic, lookup bounds, and borrowed lifetimes
+were clean. The stable C header and exported C symbols are unchanged. Database
+and transaction concerns do not apply to these pure in-memory modules.
