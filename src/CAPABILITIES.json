@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "scope": "bounded Mecha Validate v1 professional RAW gate",
+  "state_definitions": {
+    "strict": "full supported-family structure and sensor payload are checked",
+    "partial": "some exact structural or payload checks exist, with named gaps",
+    "unsupported": "no corruption verdict is produced for this family"
+  },
+  "production_dependencies": [
+    "tiffz"
+  ],
+  "dev_test_oracles_only": [
+    "darktable-rawspeed",
+    "exiftool",
+    "libraw"
+  ],
+  "production_closure": {
+    "status": "blocked",
+    "reason": "tiffz exposes one full module whose build graph includes zlib, jpegz, zstdz, and lercz even when rawz only imports parser types",
+    "required_fix": "tiffz must expose a parser-only Zig module with no codec imports, or Validate must prove an equivalently clean higher-level closure"
+  },
+  "bounded_scorecards": {
+    "pef_huffman_sparse_code": {
+      "scope": "synthetic PEF private-Huffman stream with one assigned prefix; every injected one bit is invalid by the pre-mutation table",
+      "known_good": 3,
+      "false_positives": 0,
+      "known_bad": 4,
+      "false_negatives": 0,
+      "sniper_detected": 2048,
+      "sniper_total": 2048,
+      "bolter_detected": 16,
+      "bolter_total": 16,
+      "shotgun_detected": 1,
+      "shotgun_total": 1,
+      "qualification": "This proves the bounded PEF entropy validator slice, not PEF container dispatch or any other RAW family."
+    }
+  },
+  "families": [
+    {
+      "id": "dng",
+      "extensions": ["dng"],
+      "container": "TIFF/EP",
+      "classification_state": "partial",
+      "validation_state": "partial",
+      "evidence": "DNGVersion and TIFF structure are checked through tiffz; full lossless-JPEG sensor payload coverage is not established"
+    },
+    {
+      "id": "pef",
+      "extensions": ["pef"],
+      "container": "TIFF plus Pentax private data",
+      "classification_state": "partial",
+      "validation_state": "partial",
+      "evidence": "synthetic semantic classification plus strict bounded packed-12 truncation and private-Huffman stream checks; container-to-stream dispatch is not wired"
+    },
+    {
+      "id": "cr2",
+      "extensions": ["cr2"],
+      "container": "TIFF plus Canon private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic semantic classification exists; Canon lossless-JPEG sensor payload is not validated by rawz"
+    },
+    {
+      "id": "nef-nrw",
+      "extensions": ["nef", "nrw"],
+      "container": "TIFF plus Nikon private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic Nikon semantic classification exists; compressed and uncompressed sensor variants are not validated"
+    },
+    {
+      "id": "arw-sr2-srf",
+      "extensions": ["arw", "sr2", "srf"],
+      "container": "TIFF-derived Sony private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic Sony semantic classification exists; Sony compression variants are not validated"
+    },
+    {
+      "id": "orf-ori",
+      "extensions": ["orf", "ori"],
+      "container": "TIFF-derived Olympus or OM System private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic and pc260001-style semantic classification exists; Olympus Huffman payload is not validated"
+    },
+    {
+      "id": "rw2-raw",
+      "extensions": ["rw2", "raw"],
+      "container": "Panasonic TIFF-like private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic Panasonic semantic classification exists; Panasonic sensor compression is not validated"
+    },
+    {
+      "id": "3fr-fff",
+      "extensions": ["3fr", "fff"],
+      "container": "TIFF-derived Hasselblad private data",
+      "classification_state": "partial",
+      "validation_state": "unsupported",
+      "evidence": "synthetic Hasselblad semantic classification exists; sensor payload is not validated"
+    },
+    {
+      "id": "raf",
+      "extensions": ["raf"],
+      "container": "Fujifilm private container with embedded TIFF-like data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no RAF container parser or X-Trans sensor validator"
+    },
+    {
+      "id": "cr3",
+      "extensions": ["cr3"],
+      "container": "ISO BMFF plus Canon CRX",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no ISO BMFF or CRX parser in rawz"
+    },
+    {
+      "id": "crw",
+      "extensions": ["crw"],
+      "container": "Canon CIFF",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no CIFF parser"
+    },
+    {
+      "id": "x3f",
+      "extensions": ["x3f"],
+      "container": "Sigma or Foveon private container",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no X3F container or Foveon payload parser"
+    },
+    {
+      "id": "iiq",
+      "extensions": ["iiq"],
+      "container": "Phase One private TIFF-derived data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Phase One private-tag or sensor validator"
+    },
+    {
+      "id": "srw",
+      "extensions": ["srw"],
+      "container": "Samsung TIFF-derived private data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Samsung private-tag or sensor validator"
+    },
+    {
+      "id": "rwl",
+      "extensions": ["rwl"],
+      "container": "Leica TIFF-derived private data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Leica private-tag or sensor validator beyond public DNG"
+    },
+    {
+      "id": "erf",
+      "extensions": ["erf"],
+      "container": "Epson TIFF-derived private data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Epson private-tag or sensor validator"
+    },
+    {
+      "id": "mos",
+      "extensions": ["mos"],
+      "container": "Leaf private TIFF-derived data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Leaf private-tag or sensor validator"
+    },
+    {
+      "id": "mef",
+      "extensions": ["mef"],
+      "container": "Mamiya private TIFF-derived data",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no Mamiya private-tag or sensor validator"
+    },
+    {
+      "id": "mrw",
+      "extensions": ["mrw"],
+      "container": "Minolta private container",
+      "classification_state": "unsupported",
+      "validation_state": "unsupported",
+      "evidence": "no MRW container or sensor validator"
+    }
+  ]
+}

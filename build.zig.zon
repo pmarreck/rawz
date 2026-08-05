@@ -4,8 +4,8 @@
     .minimum_zig_version = "0.16.0",
     .dependencies = .{
         .tiffz = .{
-            .url = "git+https://github.com/pmarreck/tiffz#d03c9d24282d36e489a18809b61ec9e6239dca08",
-            .hash = "tiffz-0.1.0-qutJAfSBdQEfocoemt5svpp-0Kvo9MZBVU0ZNdCDAMOo",
+            .url = "git+https://github.com/pmarreck/tiffz#b3b8871ab17defa209f8ce368900a43eb6540a50",
+            .hash = "tiffz-0.1.0-qutJAc_NdQHjcir6dd-Ep7HIuQiMcHigqkKTyWfgzUPV",
         },
     },
     .paths = .{

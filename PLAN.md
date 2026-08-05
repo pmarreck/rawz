@@ -2,6 +2,28 @@
 
 ## In Progress
 
+- [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
+  - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50`
+    and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
+  - [x] Proved the old pin rejected a valid BigTIFF IFD8 SubIFD, then made the
+    same 28-case suite pass on the new pin (2026-08-05 00:18 EDT).
+  - [x] Added a checked, bounded embedded-source classifier and pinned the new
+    dependency error mapping inside rawz's stable error domain (2026-08-05
+    00:23 EDT).
+  - [x] Published and machine-checked the professional-family matrix in
+    `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05
+    00:23 EDT).
+  - [x] Added deterministic PEF Huffman known-good/known-bad and
+    sniper/bolter/shotgun measurements whose declared JSON values are checked
+    against the executable measurement (2026-08-05 00:24 EDT).
+  - [x] Documented the higher-level Validate coordinator and rejected a direct
+    `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
+  - [ ] Split a parser-only tiffz module before claiming the requested
+    first-party-only production closure. The current full module includes
+    zlib, jpegz, zstdz, and lercz even on rawz's classification path.
+  - [ ] Pass canonical local, exact Nix, pushed-commit, and terminal Mechatron
+    gates for this unit.
+
 - [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives
   in the consumer app purely by accident of history.
   - [x] Sequencing constraint lifted by Peter via Einstein (2026-07-31 13:58
@@ -10,6 +32,13 @@
     path, rawz import path, and exact SHA to pin.
   - [ ] Keep both repositories green and stage only explicit paths; never sweep
     other agents' concurrent work into a commit.
+  - [x] Repin tiffz from vulnerable `d03c9d2` to at least `b3b8871a`, which
+    includes the `Ifd.parse` allocation-failure double-free fix (`2a431856`)
+    and BigTIFF `IFD8` support. Regenerate dependency hashes and pass the full
+    rawz gates before validate pins M3.
+    - Curiosity poke: the intervening commits add bounded subranges and a
+      distinct embedded-JPEG error, so verify rawz's adapter error mapping and
+      offset semantics rather than treating this as a hash-only repin.
   - [x] Reproduce validate's packed-12 behavior in rawz before moving code, and
     add the missing maximum-dimension overflow case.
   - [x] Give rawz a focused in-memory MSB bit reader for the PEF Huffman path;

@@ -19,6 +19,8 @@ become a *separate* product later; it is not this library's v1.
 ## The boundary with tiffz (read this first)
 
 Full rationale: **`~/Code/tiffz/docs/tiff_raw_boundary.md`**. Summary:
+The concrete acyclic consumer sequence and offset contract are recorded in
+**`docs/validate_integration.md`**.
 
 > **Standardized, publicly specified TIFF profiles → tiffz.**
 > **Proprietary, reverse-engineered vendor formats → rawz.**

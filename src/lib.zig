@@ -14,6 +14,7 @@ const std = @import("std");
 const tiffz = @import("tiffz");
 
 pub const classification = @import("classification.zig");
+pub const capabilities = @import("capabilities.zig");
 pub const pef_decoder = @import("pef_decoder.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
 
@@ -181,6 +182,7 @@ test "every Zig format and error has one stable C mapping" {
 test "public parsing modules are available through rawz" {
     _ = tiffz;
     _ = classification;
+    _ = capabilities;
     _ = tiff_adapter;
 }
 

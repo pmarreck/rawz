@@ -194,6 +194,29 @@ pub fn classifyBuffer(allocator: std.mem.Allocator, bytes: []const u8) Error!cla
 fn classifyBufferInner(allocator: std.mem.Allocator, bytes: []const u8) !classification.Format {
     var handle = tiffz.source.BufferHandle.init(bytes);
     const source = tiffz.Source.fromBuffer(&handle);
+    return classifySourceInner(allocator, source);
+}
+
+/// Classify a bounded TIFF-family view inside a larger source without copying
+/// or exposing bytes outside `[base, base + len)`. Any later finding offset is
+/// view-relative; callers add the same checked `base` for its host offset.
+pub fn classifySubrange(
+    allocator: std.mem.Allocator,
+    source: tiffz.Source,
+    base: u64,
+    len: u64,
+) Error!classification.Format {
+    const end = std.math.add(u64, base, len) catch return error.InvalidArgument;
+    const source_size = source.sizeOf() catch |err| return mapError(err);
+    if (end > source_size) return error.InvalidArgument;
+
+    var source_copy = source;
+    var subrange_handle = tiffz.source.SubSourceHandle.init(&source_copy, base, len);
+    const subrange = tiffz.Source.fromSubrange(&subrange_handle);
+    return classifySourceInner(allocator, subrange) catch |err| return mapError(err);
+}
+
+fn classifySourceInner(allocator: std.mem.Allocator, source: tiffz.Source) !classification.Format {
     var decoder = try tiffz.Decoder.open(allocator, source);
     defer decoder.deinit();
     var accumulator: EvidenceAccumulator = .{
@@ -413,6 +436,13 @@ test "classifies a set of parsed TIFF containers" {
         "\x01\x00\x00\x00\x00\x00\x00\x00" ++
         "\x12\xc6\x01\x00\x04\x00\x00\x00\x00\x00\x00\x00\x01\x04\x00\x00\x00\x00\x00\x00" ++
         "\x00\x00\x00\x00\x00\x00\x00\x00";
+    const bigtiff_ifd8_sub_ifd = "II\x2b\x00\x08\x00\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00" ++
+        "\x01\x00\x00\x00\x00\x00\x00\x00" ++
+        "\x4a\x01\x12\x00\x01\x00\x00\x00\x00\x00\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00" ++
+        "\x00\x00\x00\x00\x00\x00\x00\x00" ++
+        "\x01\x00\x00\x00\x00\x00\x00\x00" ++
+        "\x12\xc6\x01\x00\x04\x00\x00\x00\x00\x00\x00\x00\x01\x04\x00\x00\x00\x00\x00\x00" ++
+        "\x00\x00\x00\x00\x00\x00\x00\x00";
 
     const Case = struct {
         name: []const u8,
@@ -430,6 +460,7 @@ test "classifies a set of parsed TIFF containers" {
         .{ .name = "CR2 sensor in linked IFD", .bytes = linked_cfa_cr2, .expected = .cr2 },
         .{ .name = "CR2 nested SubIFD cycle", .bytes = nested_cycle_cr2, .expected = .cr2 },
         .{ .name = "BigTIFF repeated out-of-line SubIFD", .bytes = bigtiff_out_of_line_sub_ifd, .expected = .dng },
+        .{ .name = "BigTIFF IFD8 SubIFD", .bytes = bigtiff_ifd8_sub_ifd, .expected = .dng },
     };
 
     for (cases) |case| {
@@ -557,4 +588,34 @@ test "cleans up when rawz worklist allocation fails" {
     defer accumulator.deinit();
 
     try std.testing.expectError(error.OutOfMemory, accumulator.enqueue(100, .image));
+}
+
+test "embedded TIFF classification is bounded and keeps caller-owned base offsets" {
+    const dng = "II\x2a\x00\x08\x00\x00\x00" ++
+        "\x01\x00" ++
+        "\x12\xc6\x01\x00\x04\x00\x00\x00\x01\x04\x00\x00" ++
+        "\x00\x00\x00\x00";
+    const host = "pre" ++ dng ++ "post";
+    var host_handle = tiffz.source.BufferHandle.init(host);
+    const host_source = tiffz.Source.fromBuffer(&host_handle);
+
+    try std.testing.expectEqual(
+        classification.Format.dng,
+        try classifySubrange(std.testing.allocator, host_source, 3, dng.len),
+    );
+    try std.testing.expectError(
+        error.InvalidArgument,
+        classifySubrange(std.testing.allocator, host_source, 3, dng.len + 5),
+    );
+    try std.testing.expectError(
+        error.InvalidArgument,
+        classifySubrange(std.testing.allocator, host_source, std.math.maxInt(u64), 2),
+    );
+}
+
+test "new dependency errors stay inside rawz's stable error domain" {
+    try std.testing.expectEqual(
+        error.UnsupportedTiffFeature,
+        mapError(error.JpegInTiffPayload),
+    );
 }
