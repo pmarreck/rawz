@@ -29,8 +29,10 @@
       references.
     - [x] Preserve the published capability matrix and bounded PEF scorecard,
       changing only the now-proven closure status and evidence.
-    - [ ] Publish exact rawz repin evidence to Validate after canonical tests,
-      build, exact Nix targets, and terminal Mechatron success.
+    - [x] Publish exact rawz repin evidence after canonical tests, build, exact
+      Nix targets, and terminal Mechatron success for
+      `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05
+      01:43 EDT).
   - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron
     gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in
     3 seconds (2026-08-05 00:29 EDT).
