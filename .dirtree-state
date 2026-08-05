@@ -16,4 +16,5 @@ annotate=[
 	src/pef_decoder.zig = Pentax packed-12 and lossless-Huffman validation migrated from validate
 	src/tiff_adapter.zig = Bounded tiffz IFD traversal, semantic-tag validation, and stable rawz error mapping
 	tests/integration/classification.c = Compiled C consumer proving header values, exported symbols, and DNG classification
+	tests/production_closure_test = Blocking release gate for parser-only compiler imports, codec-free loader metadata, and smoke-tested shipped binaries
 ]

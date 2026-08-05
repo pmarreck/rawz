@@ -48,6 +48,14 @@ test "capability matrix is complete, honest, and internally consistent" {
         }
     }
 
+    const closure = root.get("production_closure").?.object;
+    try std.testing.expectEqualStrings("clean", closure.get("status").?.string);
+    try std.testing.expectEqualStrings("tiffz-parser", closure.get("module").?.string);
+    try std.testing.expectEqualStrings(
+        "c57166db87132742c7591c34161c5549133bd09a",
+        closure.get("tiffz_commit").?.string,
+    );
+
     const declared = root.get("bounded_scorecards").?.object.get("pef_huffman_sparse_code").?.object;
     const measured = pef_decoder.measureV1Gate();
     try std.testing.expectEqual(@as(i64, @intCast(measured.valid_total)), declared.get("known_good").?.integer);

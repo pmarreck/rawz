@@ -7,38 +7,11 @@ pub fn build(b: *std.Build) void {
         "optimize",
         "Optimization mode (default: ReleaseFast)",
     ) orelse .ReleaseFast;
-    const zlib_include = b.option([]const u8, "zlib-include", "Path to zlib headers") orelse "";
-    const zlib_library = b.option([]const u8, "zlib-lib", "Path to zlib libraries") orelse "";
-    const tiffz_dep = if (zlib_include.len > 0 and zlib_library.len > 0)
-        b.dependency("tiffz", .{
-            .target = target,
-            .optimize = optimize,
-            .@"zlib-include" = zlib_include,
-            .@"zlib-lib" = zlib_library,
-        })
-    else
-        b.dependency("tiffz", .{
-            .target = target,
-            .optimize = optimize,
-        });
-    const tiffz_mod = tiffz_dep.module("tiffz");
-    // Zig 0.16 puts system libraries from imported modules inside a static
-    // archive. Remove zlib from the dependency graph here, then attach `-lz`
-    // only to final executables and named Zig modules below.
-    for (tiffz_mod.getGraph().modules) |module| {
-        var link_index: usize = 0;
-        while (link_index < module.link_objects.items.len) {
-            const remove = switch (module.link_objects.items[link_index]) {
-                .system_lib => |system_lib| std.mem.eql(u8, system_lib.name, "z"),
-                else => false,
-            };
-            if (remove) {
-                _ = module.link_objects.orderedRemove(link_index);
-            } else {
-                link_index += 1;
-            }
-        }
-    }
+    const tiffz_dep = b.dependency("tiffz", .{
+        .target = target,
+        .optimize = optimize,
+    });
+    const tiffz_mod = tiffz_dep.module("tiffz-parser");
 
     // ── Core library module (pure Zig, no I/O) ──────────────────────────
     // Exposed for downstream Zig consumers (validate). Per the fleet's
@@ -50,13 +23,13 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     core_mod.addImport("tiffz", tiffz_mod);
-    core_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
 
     // ── Static library with C ABI (the FFI boundary) ────────────────────
     const lib_mod = b.createModule(.{
         .root_source_file = b.path("src/lib.zig"),
         .target = target,
         .optimize = optimize,
+        .strip = optimize != .Debug,
         .link_libc = true,
     });
     lib_mod.addImport("tiffz", tiffz_mod);
@@ -71,6 +44,7 @@ pub fn build(b: *std.Build) void {
     const cli_mod = b.createModule(.{
         .target = target,
         .optimize = optimize,
+        .strip = optimize != .Debug,
         .link_libc = true,
     });
     cli_mod.addCSourceFile(.{
@@ -78,7 +52,6 @@ pub fn build(b: *std.Build) void {
         .flags = &.{ "-std=c11", "-Wall", "-Wextra", "-Wpedantic" },
     });
     cli_mod.addIncludePath(b.path("include"));
-    cli_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
     // Zig 0.16: linkLibrary lives on the MODULE, not on Compile.
     // `cli.linkLibrary(lib)` (the 0.12-0.15 form) fails with
     // "no field or member function named 'linkLibrary' in 'Build.Step.Compile'".
@@ -100,7 +73,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     test_mod.addImport("tiffz", tiffz_mod);
-    test_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
     const run_tests = b.addRunArtifact(b.addTest(.{ .root_module = test_mod }));
     const test_step = b.step("test", "Run unit and C ABI integration tests");
     test_step.dependOn(&run_tests.step);
@@ -115,7 +87,6 @@ pub fn build(b: *std.Build) void {
         .flags = &.{ "-std=c11", "-Wall", "-Wextra", "-Wpedantic", "-Werror" },
     });
     ffi_test_mod.addIncludePath(b.path("include"));
-    ffi_test_mod.linkSystemLibrary("z", .{ .use_pkg_config = .no });
     ffi_test_mod.linkLibrary(lib);
     const ffi_test = b.addExecutable(.{
         .name = "rawz-classification-ffi-test",

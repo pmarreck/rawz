@@ -11,14 +11,15 @@ error handling, and database concerns.
 
 The review reported 1 critical finding, 12 warnings, and 7 advisories. The
 production findings were resolved before the M2 commit. Two dependency defects
-remain assigned to tiffz and one real-corpus test remains in M5.
+assigned to tiffz were resolved before the current pin; one real-corpus test
+remains in M5.
 
 | Finding | Severity | Disposition |
 |---|---:|---|
 | Exif IFDs were skipped, hiding normal MakerNotes | Critical | Fixed with a failing ORF/Exif regression test and metadata-only Exif traversal |
 | Reduced preview plus full RGB child could be called RAW | Warning | Fixed with a failing specificity case; rendered photometric children no longer satisfy the fallback layout |
 | Classification had no C ABI | Warning | Fixed with append-only C status/format enums, pointer/error tests, and a compiled C integration test |
-| Adapter error and allocation paths lacked tests | Warning | Added truncated offsets, malformed semantic tags, overflow, and a focused rawz allocator-failure test; broad dependency sweeping is blocked by the tiffz crash below |
+| Adapter error and allocation paths lacked tests | Warning | Added truncated offsets, malformed semantic tags, overflow, and a focused rawz allocator-failure test; the tiffz allocation crash was fixed upstream |
 | Big-endian and BigTIFF paths lacked coverage | Warning | Added classic big-endian and BigTIFF tests, including repeated out-of-line `LONG8` SubIFDs |
 | Linked, nested, repeated, and cyclic IFD traversal lacked coverage | Warning | Added byte-level fixtures for each topology |
 | Model fallback and vendor aliases lacked coverage | Warning | Added model-only, OM Digital, AOC, and Ricoh cases |
@@ -40,24 +41,22 @@ Dimensions 4 (speed/determinism), 8 (file organization), and 10 (memory) found
 no additional issue. Dimension 13 found no database layer and was not
 applicable.
 
-The C integration test then exposed a Zig 0.16 cold-link problem: imported
-system zlib metadata caused `libz.so` to be inserted into `librawz.a`. The build
-now removes zlib from static-archive inputs and attaches `-lz` only to final
-executables and named Zig modules. A direct archive listing confirms that
-`librawz.a` contains only the relocatable rawz object.
+The C integration test exposed a Zig 0.16 cold-link problem: imported system
+zlib metadata caused `libz.so` to be inserted into `librawz.a`. The temporary
+graph surgery was retired after tiffz exposed a parser-only module. rawz now
+injects `tiffz-parser`, links no codec library, strips ReleaseFast artifacts,
+and blocks compiler-graph, loader-edge, direct-reference, and transitive Nix
+closure regressions.
 
 ## tiffz follow-ups
 
-The pinned tiffz dependency is commit `d03c9d2`.
+The pinned tiffz dependency is commit
+`c57166db87132742c7591c34161c5549133bd09a`.
 
-- `std.testing.FailingAllocator` index 3 crashes in
-  `Decoder.openWithLimits` near `decoder.zig:80` while freeing invalid storage.
-  This prevents a complete allocation-failure sweep through rawz. The focused
-  rawz worklist failure test remains enabled.
-- `Ifd.arrayElementU64` returns `UnsupportedTagType` for BigTIFF `IFD8` arrays.
-  rawz tests the supported out-of-line `LONG8` representation, but standard
-  `IFD8` SubIFDs need the decoding fix in tiffz to preserve the agreed
-  container boundary.
+- The `Decoder.openWithLimits` allocation-failure double-free was fixed before
+  the current pin. The focused rawz worklist failure test remains enabled.
+- BigTIFF `IFD8` array support landed before the current pin and is covered by
+  rawz's valid IFD8 SubIFD regression fixture.
 
 ## Independent controls
 

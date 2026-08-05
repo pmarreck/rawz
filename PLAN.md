@@ -18,9 +18,19 @@
     against the executable measurement (2026-08-05 00:24 EDT).
   - [x] Documented the higher-level Validate coordinator and rejected a direct
     `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
-  - [ ] Split a parser-only tiffz module before claiming the requested
-    first-party-only production closure. The current full module includes
-    zlib, jpegz, zstdz, and lercz even on rawz's classification path.
+  - [x] Adopt tiffz's parser-only module and prove the requested first-party-only
+    production closure (2026-08-05 01:40 EDT).
+    - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a`
+      and inject its `tiffz-parser` module exactly once. Curiosity poke: remove
+      every obsolete zlib workaround rather than hiding a stale link edge.
+    - [x] Add a blocking production-closure check over the parser import graph,
+      exact compiler command, shipped ELF, and Nix store references. Curiosity
+      poke: dynamic-section inspection alone misses static or debug-path Nix
+      references.
+    - [x] Preserve the published capability matrix and bounded PEF scorecard,
+      changing only the now-proven closure status and evidence.
+    - [ ] Publish exact rawz repin evidence to Validate after canonical tests,
+      build, exact Nix targets, and terminal Mechatron success.
   - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron
     gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in
     3 seconds (2026-08-05 00:29 EDT).

@@ -5,10 +5,15 @@
 Validate owns orchestration. The static dependency graph remains:
 
 ```text
-Validate -> rawz -> tiffz -> jpegz
+Validate -> rawz -> tiffz-parser
          -> tiffz
          -> jpegz
 ```
+
+The `rawz` build resolves one exact tiffz package instance and injects its
+named `tiffz-parser` module into every rawz compilation root. Validate should
+inject that same dependency instance when it composes rawz and full tiffz, so
+the coordinator cannot silently compile two parser versions.
 
 `tiffz` must never import `rawz`. A direct reverse edge would create the
 `tiffz <-> rawz` cycle that Peter's requested TIFF/RAW sequence exposed.
@@ -50,12 +55,13 @@ claim beyond the tested bounded view.
 
 ## Production closure gate
 
-rawz directly imports only tiffz, but tiffz currently exports one full Zig
-module containing parser and codec imports. Its build graph pulls in zlib,
-jpegz, zstdz, and lercz even for rawz's classification-only path. The desired
-first-party-only production closure therefore does not pass yet.
+rawz pins tiffz commit `c57166db87132742c7591c34161c5549133bd09a` and
+imports its `tiffz-parser` module. The named module contains the header, source,
+limits, IFD, tag, and decoder traversal surface without compression codecs.
 
-tiffz should expose a parser-only module, for example `tiffz-parser`, containing
-header, source, limits, IFD, tag, and decoder traversal needed to produce
-semantic facts without compression codecs. rawz can then pin that module.
-Tests and the full tiffz product may continue using the complete module.
+The blocking release check verifies the verbose Zig compiler graph maps the
+sole local `tiffz` import to `src/parser.zig`. It also inspects ELF or Mach-O
+load metadata and rejects codec paths. Nix independently rejects zlib,
+OpenJPEG, libjpeg, libjxl, zstd, and lerc as direct references or transitive
+runtime requisites. Release artifacts are stripped so build-tool source paths
+cannot pull Zig's own codec closure into the shipped output.

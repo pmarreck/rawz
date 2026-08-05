@@ -5,3 +5,4 @@
 # suite cannot observe UB); `build` is the ReleaseFast shipped artifact.
 checks.x86_64-linux.build
 checks.x86_64-linux.test
+checks.x86_64-linux.production-closure

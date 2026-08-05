@@ -15,9 +15,10 @@
     "libraw"
   ],
   "production_closure": {
-    "status": "blocked",
-    "reason": "tiffz exposes one full module whose build graph includes zlib, jpegz, zstdz, and lercz even when rawz only imports parser types",
-    "required_fix": "tiffz must expose a parser-only Zig module with no codec imports, or Validate must prove an equivalently clean higher-level closure"
+    "status": "clean",
+    "module": "tiffz-parser",
+    "tiffz_commit": "c57166db87132742c7591c34161c5549133bd09a",
+    "evidence": "the compiler graph maps rawz's sole tiffz import to src/parser.zig; shipped ELF/Mach-O load metadata and the complete Nix runtime closure reject zlib, OpenJPEG, libjpeg, libjxl, jpegz, zstd, lerc, and lzwz"
   },
   "bounded_scorecards": {
     "pef_huffman_sparse_code": {

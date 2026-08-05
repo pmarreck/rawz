@@ -13,10 +13,20 @@
         pname = "rawz";
         version = "0.1.0";
         zigPkg = pkgs.zig;
+        isDarwin = pkgs.stdenv.isDarwin;
+        isLinux = pkgs.stdenv.isLinux;
+        forbiddenCodecRequisites = [
+          pkgs.zlib
+          pkgs.openjpeg
+          pkgs.libjpeg
+          pkgs.libjxl
+          pkgs.zstd
+          pkgs.lerc
+        ];
 
         # Fixed-output derivation for the Zig dependency graph rooted at tiffz.
         # To regenerate: set to pkgs.lib.fakeHash, `nix build`, use printed hash.
-        zigDepsHash = "sha256-MVPyIQLimcWHDjiI304Y/2SmYe/vlyL1ES5BFLbXkCs=";
+        zigDepsHash = "sha256-9OCxhqjH1Gm1hRxjoeDq6wRAxhTlFGu0Bz2/z6sM1Pk=";
         zigDeps = pkgs.stdenv.mkDerivation {
           pname = "${pname}-zig-deps";
           inherit version;
@@ -47,35 +57,43 @@
         packages.default = pkgs.stdenv.mkDerivation {
           inherit pname version;
           src = ./.;
-          nativeBuildInputs = [ zigPkg ];
-          buildInputs = [ pkgs.zlib ];
+          nativeBuildInputs = [ zigPkg pkgs.file ]
+            ++ pkgs.lib.optionals isLinux [ pkgs.binutils ]
+            ++ pkgs.lib.optionals isDarwin [ pkgs.darwin.cctools ];
+          # Keep build-tool source paths out of release artifacts, then reject
+          # codec references both directly and anywhere in the runtime closure.
+          disallowedReferences = [ zigPkg ] ++ forbiddenCodecRequisites;
+          disallowedRequisites = forbiddenCodecRequisites;
           dontConfigure = true;
-          dontFixup = true;
           buildPhase = ''
             export HOME=$TMPDIR
             ${depSetup}
-            ${pkgs.lib.optionalString pkgs.stdenv.isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
-            zig build -Doptimize=ReleaseFast --prefix $out \
-              -Dzlib-include=${pkgs.zlib.dev}/include \
-              -Dzlib-lib=${pkgs.zlib.out}/lib
+            ${pkgs.lib.optionalString isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
+            if ! zig build --verbose -Doptimize=ReleaseFast --prefix $out \
+              > zig-build.log 2>&1; then
+              cat zig-build.log
+              exit 1
+            fi
+            ${pkgs.bash}/bin/bash tests/production_closure_test \
+              $out/bin/rawz zig-build.log
           '';
           dontInstall = true;
         };
 
         checks = {
           build = self.packages.${system}.default;
+          production-closure = self.packages.${system}.default;
           test = pkgs.stdenv.mkDerivation {
             pname = "${pname}-test";
             inherit version;
             src = ./.;
             nativeBuildInputs = [ zigPkg ];
-            buildInputs = [ pkgs.zlib ];
             dontConfigure = true;
             dontFixup = true;
             buildPhase = ''
               export HOME=$TMPDIR
               ${depSetup}
-              ${pkgs.lib.optionalString pkgs.stdenv.isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
+              ${pkgs.lib.optionalString isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
               # FLEET FLOOR — tests run ReleaseSafe (fleet finding 2026-07-01,
               # adopted fleet-wide 2026-07-29). ReleaseFast compiles OUT the
               # runtime safety checks, so a green ReleaseFast suite cannot see
@@ -89,8 +107,6 @@
               #
               # Shipped artifact and benchmarks stay ReleaseFast.
               timeout 600 zig build test -Doptimize=ReleaseSafe \
-                -Dzlib-include=${pkgs.zlib.dev}/include \
-                -Dzlib-lib=${pkgs.zlib.out}/lib \
                 || { echo "Tests failed"; exit 1; }
             '';
             installPhase = ''
@@ -101,7 +117,7 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = [ zigPkg pkgs.zlib pkgs.hyperfine pkgs.jq pkgs.coreutils ];
+          packages = [ zigPkg pkgs.hyperfine pkgs.jq pkgs.coreutils ];
         };
       });
 }

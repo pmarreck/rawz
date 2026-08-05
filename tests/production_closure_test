@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Block TIFF parser dependency leaks into rawz's shipped artifact and compiler
+# graph. Nix adds separate direct-reference and transitive-requisite gates.
+
+set -u
+
+artifact="${1:-}"
+build_log="${2:-}"
+failures=0
+banned='zlib|libz\.|-lz([[:space:]]|$)|openjpeg|openjp|libjpeg|libjxl|jpegz|zstd|lerc|lzwz'
+
+fail() {
+	printf 'production-closure: %s\n' "$1" >&2
+	failures=$((failures + 1))
+}
+
+if [[ -z "$artifact" || ! -x "$artifact" ]]; then
+	fail "rawz artifact is absent or not executable: $artifact"
+else
+	if ! "$artifact" --about >/dev/null 2>&1; then
+		fail "rawz artifact failed its --about smoke test"
+	fi
+	artifact_kind="$(file -b "$artifact" 2>&1)"
+	case "$artifact_kind" in
+	*ELF*)
+		if ! command -v readelf >/dev/null 2>&1; then
+			fail "readelf is required for the ELF closure gate"
+		else
+			dynamic="$(readelf -d "$artifact" 2>&1)"
+			if printf '%s\n' "$dynamic" | grep -Eiq "$banned"; then
+				fail "rawz ELF retains a TIFF codec dependency or search path: $dynamic"
+			fi
+		fi
+		;;
+	*Mach-O*)
+		if ! command -v otool >/dev/null 2>&1; then
+			fail "otool is required for the Mach-O closure gate"
+		else
+			loads="$(otool -L "$artifact" 2>&1; otool -l "$artifact" 2>&1)"
+			if printf '%s\n' "$loads" | grep -Eiq "$banned"; then
+				fail "rawz Mach-O retains a TIFF codec dependency or search path: $loads"
+			fi
+		fi
+		;;
+	*) fail "unsupported production artifact format: $artifact_kind" ;;
+	esac
+fi
+
+if [[ -n "$build_log" ]]; then
+	if [[ ! -f "$build_log" ]]; then
+		fail "verbose Zig build log is missing: $build_log"
+	else
+		if ! grep -Eq -- '-Mtiffz=[^[:space:]]*/src/parser\.zig' "$build_log"; then
+			fail "rawz compiler graph does not map tiffz to src/parser.zig"
+		fi
+		if grep -Eiq -- "$banned|-Mtiffz=[^[:space:]]*/src/lib\.zig" "$build_log"; then
+			fail "rawz compiler graph retains a full tiffz or codec edge"
+		fi
+	fi
+fi
+
+if [[ "$failures" -gt 0 ]]; then
+	exit "$failures"
+fi
+printf 'production-closure: parser-only compiler graph and shipped ELF are codec-free\n'
