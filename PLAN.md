@@ -21,8 +21,9 @@
   - [ ] Split a parser-only tiffz module before claiming the requested
     first-party-only production closure. The current full module includes
     zlib, jpegz, zstdz, and lercz even on rawz's classification path.
-  - [ ] Pass canonical local, exact Nix, pushed-commit, and terminal Mechatron
-    gates for this unit.
+  - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron
+    gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in
+    3 seconds (2026-08-05 00:29 EDT).
 
 - [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives
   in the consumer app purely by accident of history.
