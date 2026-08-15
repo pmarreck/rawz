@@ -5,6 +5,7 @@ annotate=[
 	PLAN.md = Current milestones, review fixes, CI gates, and cross-project sequencing
 	build.zig = Build graph wiring rawz core, C ABI/CLI, tests, and pinned tiffz module with zlib paths
 	build.zig.zon = Zig 0.16 package manifest pinning the tiffz container dependency
+	docs/RAW_COVERAGE_AND_NOMENCLATURE.md = Fleet RAW coverage/gap matrix + container-vs-payload model + shared nomenclature (validate-authored)
 	docs/validate_integration.md = Acyclic Validate coordinator, bounded offset contract, and parser-only tiffz requirement
 	flake.nix = Reproducible ReleaseFast package and ReleaseSafe tests with fixed-output Zig dependency cache
 	include/rawz.h = Stable append-only C status/format enums and borrowed-buffer classification API
