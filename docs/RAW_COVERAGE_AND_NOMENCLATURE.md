@@ -1,6 +1,6 @@
 # RAW coverage, the TIFF boundary, and a shared nomenclature
 
-**Owner:** rawz (companion to `PROJECT_OVERVIEW.md`, `docs/validate_integration.md`,
+**Owner:** rawz (companion to `INTENT.md`, `docs/validate_integration.md`,
 and tiffz's `docs/tiff_raw_boundary.md`).
 **Author:** validate (Mecha Validate coordinator), 2026-08-05.
 **Status:** proposal for Peter's ratification. The container/payload model and
@@ -459,7 +459,7 @@ getting cleaner.
 
 ---
 
-*Cross-references: rawz `PROJECT_OVERVIEW.md` (boundary doctrine, terminology),
+*Cross-references: rawz `INTENT.md` (boundary doctrine) and `TERMINOLOGY.md`,
 rawz `docs/validate_integration.md` (acyclic graph, offset contract), tiffz
 `docs/tiff_raw_boundary.md` (authoritative boundary), rawz `src/CAPABILITIES.json`
 (machine-readable current state), validate v1 capability contract.*

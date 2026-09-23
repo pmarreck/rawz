@@ -2,7 +2,9 @@
 ver=1.2
 annotate=[
 	CODE_REVIEW.md = M2/M3 sequential 13-dimension review findings, dispositions, controls, and dependency follow-ups
+	INTENT.md = Canonical project purpose, scope, dependency boundary, constraints, and success evidence
 	PLAN.md = Current milestones, review fixes, CI gates, and cross-project sequencing
+	TERMINOLOGY.md = Shared RAW container, payload, sample, and metadata definitions
 	build.zig = Build graph wiring rawz core, C ABI/CLI, tests, and pinned tiffz module with zlib paths
 	build.zig.zon = Zig 0.16 package manifest pinning the tiffz container dependency
 	docs/RAW_COVERAGE_AND_NOMENCLATURE.md = Fleet RAW coverage/gap matrix + container-vs-payload model + shared nomenclature (validate-authored)

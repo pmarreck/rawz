@@ -2,6 +2,24 @@
 
 ## In Progress
 
+- [ ] **September 23 dependency convergence.** Move rawz to the current,
+  intended tiffz parser pin so Validate sees one coherent
+  tiffz/jpegz/libjxlz graph without weakening its duplicate-package or seed
+  freshness controls.
+  - [ ] Confirm the current intended tiffz, jpegz, and libjxlz revisions with
+    tiffz and Validate; treat the September 20 `0004f747` work order as a
+    snapshot until verified.
+  - [ ] Repin only the existing `rawz -> tiffz-parser` edge and regenerate the
+    Zig package hash and Nix fixed-output hash.
+  - [ ] Prove the resolved graph contains one jpegz/libjxlz generation and that
+    the production-closure gate stays strict.
+  - [ ] Pass the canonical suite, direct manifest targets, push verification,
+    and exact-commit Mechatron CI.
+  - [ ] Report exact rawz/tiffz/jpegz/libjxlz revisions and results to tiffz,
+    Validate, and Einstein.
+  - Curiosity poke: a newer tiffz tip may carry unrelated API or closure changes;
+    pin the narrowest current revision that all three projects intend.
+
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50`
     and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
@@ -72,7 +90,7 @@
 ## Next
 
 - [ ] **M4 — detection research (the product payoff).** Test the two hypotheses
-  in `PROJECT_OVERVIEW.md` against real data:
+  in `INTENT.md` against real data:
   - [ ] **Compression-variant split.** Re-measure corruption detection per
     *compression variant*, never per extension. NEF/ARW/CR2 ship compressed AND
     uncompressed; entropy-coded data desynchronizes on a bit flip and should be
@@ -97,7 +115,7 @@
 ## Deferred / explicitly not doing
 
 - Demosaicing, colour science, rendering, conversion. Out of scope for v1; see
-  `PROJECT_OVERVIEW.md`.
+  `INTENT.md`.
 - Moving `dng.zig` out of tiffz. It is correctly placed — DNG is a public
   TIFF/EP standard.
 
