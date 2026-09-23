@@ -2,7 +2,7 @@
 
 ## In Progress
 
-- [ ] **September 23 dependency convergence.** Move rawz to the current,
+- [x] **September 23 dependency convergence.** Move rawz to the current,
   intended tiffz parser pin so Validate sees one coherent
   tiffz/jpegz/libjxlz graph without weakening its duplicate-package or seed
   freshness controls.
@@ -15,10 +15,12 @@
     Zig package hash and Nix fixed-output hash (2026-09-23 10:18 EDT).
   - [x] Prove the resolved graph contains one jpegz/libjxlz generation and that
     the production-closure gate stays strict (2026-09-23 10:18 EDT).
-  - [ ] Pass the canonical suite, direct manifest targets, push verification,
-    and exact-commit Mechatron CI.
-  - [ ] Report exact rawz/tiffz/jpegz/libjxlz revisions and results to tiffz,
-    Validate, and Einstein.
+  - [x] Pass the canonical suite, direct manifest targets, push verification,
+    and exact-commit Mechatron CI. Commit `67d92c9e5cdd` passed in 6 seconds
+    (2026-09-23 10:28 EDT).
+  - [x] Report exact rawz/tiffz/jpegz/libjxlz revisions and results to tiffz,
+    Validate, and Einstein through durable inbox handoffs (2026-09-23 10:28
+    EDT).
   - Curiosity poke: a newer tiffz tip may carry unrelated API or closure changes;
     pin the narrowest current revision that all three projects intend.
 
