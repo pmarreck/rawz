@@ -4,9 +4,17 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+
+    # Private transitive dependency (rawz -> tiffz -> jpegz -> libjxlz).
+    # Nix fetches it through the caller's SSH credentials, then seeds Zig's
+    # cache. The revision must match jpegz's build.zig.zon pin.
+    libjxlz-src = {
+      url = "git+ssh://git@github.com/pmarreck/libjxlz?ref=yolo&rev=93b29e86281ea4ba9c681f4879318c87e8a800a4";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, libjxlz-src }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -26,7 +34,7 @@
 
         # Fixed-output derivation for the Zig dependency graph rooted at tiffz.
         # To regenerate: set to pkgs.lib.fakeHash, `nix build`, use printed hash.
-        zigDepsHash = "sha256-9OCxhqjH1Gm1hRxjoeDq6wRAxhTlFGu0Bz2/z6sM1Pk=";
+        zigDepsHash = "sha256-YyJ1HjrESTTJ9ZvEcOSEcvibWhOtPyd3JV1RlIQF4x4=";
         zigDeps = pkgs.stdenv.mkDerivation {
           pname = "${pname}-zig-deps";
           inherit version;
@@ -39,12 +47,18 @@
           dontPatchShebangs = true;
           buildPhase = ''
             export HOME=$TMPDIR
-            export ZIG_GLOBAL_CACHE_DIR=$out
+            export ZIG_GLOBAL_CACHE_DIR=$TMPDIR/zig-cache
+            mkdir -p $ZIG_GLOBAL_CACHE_DIR
             export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
             export GIT_SSL_CAINFO=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+            zig fetch ${libjxlz-src}
             zig build --fetch=all
+            bash ./scripts/check-libjxlz-seed $ZIG_GLOBAL_CACHE_DIR/p ${libjxlz-src.rev}
           '';
-          dontInstall = true;
+          installPhase = ''
+            mkdir -p $out
+            cp -r $ZIG_GLOBAL_CACHE_DIR/p $out/p
+          '';
         };
 
         depSetup = ''

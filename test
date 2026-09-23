@@ -23,6 +23,14 @@ else
 	failures=$((failures + 1))
 fi
 
+echo "==> libjxlz private-seed control"
+if tests/integration/libjxlz_seed_control; then
+	echo "    ok"
+else
+	echo "    FAIL: libjxlz private-seed control" >&2
+	failures=$((failures + 1))
+fi
+
 if [ "$failures" -eq 0 ]; then
 	echo "All checks passed."
 else

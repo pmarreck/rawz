@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+# The Nix FOD's private-dependency seed control must classify the resolved
+# packages. Every jpegz package must agree on the seeded libjxlz revision and
+# content hash, with exactly one matching libjxlz package in the cache.
+set -u
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+project_root="$(cd "$script_dir/../.." && pwd)"
+control="$project_root/scripts/check-libjxlz-seed"
+work="$(mktemp -d "${TMPDIR:-/tmp}/rawz-seed-control.XXXXXX")"
+trap 'rm -rf "$work"' EXIT
+failures=0
+rev=93b29e86281ea4ba9c681f4879318c87e8a800a4
+other_rev=5e8f9d68152ae8a70cb823061f4b6c733eb09166
+hash=libjxlz-0.1.0-H-8wmybdlgGIAgb2uW_qaia2B-pT2b3JqHev4t6f_6Bb
+other_hash=libjxlz-0.1.0-ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+
+pass() {
+	echo "PASS: $1"
+}
+
+fail() {
+	echo "FAIL: $1"
+	failures=$((failures + 1))
+}
+
+# pkg CACHE NAME [REV HASH]: add a Zig cache tarball whose top-level manifest
+# may declare libjxlz. A nested manifest verifies that the control ignores it.
+pkg() {
+	local cache=$1 name=$2 dependency_rev=${3:-} dependency_hash=${4:-}
+	local source_dir="$work/source/$name"
+	mkdir -p "$source_dir/deps/inner"
+	{
+		echo '.{ .name = .x, .version = "0.1.0", .dependencies = .{'
+		if [ -n "$dependency_rev" ]; then
+			printf '        .libjxlz = .{\n            .url = "https://github.com/pmarreck/libjxlz/archive/%s.tar.gz",\n            .hash = "%s",\n        },\n' "$dependency_rev" "$dependency_hash"
+		fi
+		echo '    }, .paths = .{""} }'
+	} > "$source_dir/build.zig.zon"
+	printf '.{ .name = .inner }\n' > "$source_dir/deps/inner/build.zig.zon"
+	mkdir -p "$cache"
+	tar -czf "$cache/$name.tar.gz" -C "$work/source" "$name"
+	rm -rf "$source_dir"
+}
+
+pkg_dir() {
+	local cache=$1 name=$2 dependency_rev=${3:-} dependency_hash=${4:-}
+	pkg "$work/tmp_$name" "$name" "$dependency_rev" "$dependency_hash"
+	mkdir -p "$cache"
+	tar -xzf "$work/tmp_$name/$name.tar.gz" -C "$cache"
+	rm -rf "$work/tmp_$name"
+}
+
+run_case() {
+	local cache=$1 expected=$2 label=$3
+	"$control" "$cache" "$rev" > "$work/output" 2>&1
+	local status=$?
+	if [ "$expected" = pass ] && [ "$status" -eq 0 ]; then
+		pass "$label"
+	elif [ "$expected" = fail ] && [ "$status" -ne 0 ]; then
+		pass "$label (refused: $(head -1 "$work/output"))"
+	else
+		fail "$label: status=$status $(head -2 "$work/output")"
+	fi
+}
+
+[ -x "$control" ] || { echo "FAIL: $control missing or not executable"; exit 1; }
+
+good="$work/good"
+pkg "$good" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg "$good" jpegz-0.1.0-BBBB
+pkg "$good" "$hash"
+pkg "$good" tiffz-0.1.0-CCCC
+run_case "$good" pass "one declaring jpegz, one older jpegz without libjxlz, and one matching libjxlz"
+
+directory_form="$work/directory-form"
+pkg_dir "$directory_form" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg_dir "$directory_form" "$hash"
+run_case "$directory_form" pass "directory-form packages are classified like Zig cache tarballs"
+
+wrong_rev="$work/wrong-rev"
+pkg "$wrong_rev" jpegz-0.1.0-AAAA "$other_rev" "$hash"
+pkg "$wrong_rev" "$hash"
+run_case "$wrong_rev" fail "jpegz declares a revision other than the seed"
+
+stale="$work/stale"
+pkg "$stale" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg "$stale" jpegz-0.1.0-OLD1 "$other_rev" "$other_hash"
+pkg "$stale" "$hash"
+pkg "$stale" "$other_hash"
+run_case "$stale" fail "a stale jpegz still declares the old revision"
+
+diamond="$work/diamond"
+pkg "$diamond" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg "$diamond" jpegz-0.1.0-DDDD "$rev" "$other_hash"
+pkg "$diamond" "$hash"
+pkg "$diamond" "$other_hash"
+run_case "$diamond" fail "two jpegz packages disagree on the libjxlz content hash"
+
+missing="$work/missing"
+pkg "$missing" jpegz-0.1.0-AAAA "$rev" "$hash"
+run_case "$missing" fail "the declared libjxlz package is absent"
+
+renamed="$work/renamed"
+pkg "$renamed" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg "$renamed" "$other_hash"
+run_case "$renamed" fail "the only libjxlz package has the wrong content-hash name"
+
+extra="$work/extra"
+pkg "$extra" jpegz-0.1.0-AAAA "$rev" "$hash"
+pkg "$extra" "$hash"
+pkg "$extra" "$other_hash"
+run_case "$extra" fail "two libjxlz packages are present"
+
+no_declaration="$work/no-declaration"
+pkg "$no_declaration" jpegz-0.1.0-BBBB
+pkg "$no_declaration" "$hash"
+run_case "$no_declaration" fail "no jpegz package declares libjxlz"
+
+no_jpegz="$work/no-jpegz"
+pkg "$no_jpegz" tiffz-0.1.0-CCCC
+run_case "$no_jpegz" fail "no jpegz package is present"
+
+"$control" "$work/does-not-exist" "$rev" >/dev/null 2>&1 && fail "missing cache directory accepted" || pass "missing cache directory refused"
+"$control" "$good" >/dev/null 2>&1 && fail "missing revision argument accepted" || pass "usage error refused"
+
+[ "$failures" -eq 0 ] && echo "libjxlz seed control passed" || echo "FAIL: $failures seed control failure(s)"
+exit "$failures"

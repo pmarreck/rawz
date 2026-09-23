@@ -6,13 +6,15 @@
   intended tiffz parser pin so Validate sees one coherent
   tiffz/jpegz/libjxlz graph without weakening its duplicate-package or seed
   freshness controls.
-  - [ ] Confirm the current intended tiffz, jpegz, and libjxlz revisions with
+  - [x] Confirm the current intended tiffz, jpegz, and libjxlz revisions with
     tiffz and Validate; treat the September 20 `0004f747` work order as a
-    snapshot until verified.
-  - [ ] Repin only the existing `rawz -> tiffz-parser` edge and regenerate the
-    Zig package hash and Nix fixed-output hash.
-  - [ ] Prove the resolved graph contains one jpegz/libjxlz generation and that
-    the production-closure gate stays strict.
+    snapshot until verified. Live `yolo` heads and Validate's current work
+    order agree on tiffz `0004f747`, jpegz `3f6066c9`, and libjxlz `93b29e86`
+    (2026-09-23 10:18 EDT).
+  - [x] Repin only the existing `rawz -> tiffz-parser` edge and regenerate the
+    Zig package hash and Nix fixed-output hash (2026-09-23 10:18 EDT).
+  - [x] Prove the resolved graph contains one jpegz/libjxlz generation and that
+    the production-closure gate stays strict (2026-09-23 10:18 EDT).
   - [ ] Pass the canonical suite, direct manifest targets, push verification,
     and exact-commit Mechatron CI.
   - [ ] Report exact rawz/tiffz/jpegz/libjxlz revisions and results to tiffz,

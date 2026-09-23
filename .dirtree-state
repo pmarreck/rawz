@@ -11,6 +11,7 @@ annotate=[
 	docs/validate_integration.md = Acyclic Validate coordinator, bounded offset contract, and parser-only tiffz requirement
 	flake.nix = Reproducible ReleaseFast package and ReleaseSafe tests with fixed-output Zig dependency cache
 	include/rawz.h = Stable append-only C status/format enums and borrowed-buffer classification API
+	scripts/check-libjxlz-seed = Checks resolved Zig packages for one coherent jpegz-to-libjxlz seed
 	src/CAPABILITIES.json = Machine-checked professional RAW family states, production closure, and bounded mutation scorecard
 	src/bit_reader.zig = Focused MSB-first in-memory reader for RAW entropy streams
 	src/capabilities.zig = Embeds and verifies the RAW capability matrix against executable PEF measurements
@@ -19,5 +20,6 @@ annotate=[
 	src/pef_decoder.zig = Pentax packed-12 and lossless-Huffman validation migrated from validate
 	src/tiff_adapter.zig = Bounded tiffz IFD traversal, semantic-tag validation, and stable rawz error mapping
 	tests/integration/classification.c = Compiled C consumer proving header values, exported symbols, and DNG classification
+	tests/integration/libjxlz_seed_control = Set-classifier tests for libjxlz revision, hash, and package-count controls
 	tests/production_closure_test = Blocking release gate for parser-only compiler imports, codec-free loader metadata, and smoke-tested shipped binaries
 ]
