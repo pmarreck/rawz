@@ -15,14 +15,14 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, libjxlz-src }:
-    flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = import nixpkgs { inherit system; };
         pname = "rawz";
         version = "0.1.0";
         zigPkg = pkgs.zig;
-        isDarwin = pkgs.stdenv.isDarwin;
-        isLinux = pkgs.stdenv.isLinux;
+        isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
+        isLinux = pkgs.stdenv.hostPlatform.isLinux;
         forbiddenCodecRequisites = [
           pkgs.zlib
           pkgs.openjpeg
