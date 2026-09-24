@@ -1,160 +1,51 @@
-# rawz — Plan
+# PLAN
+
+Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
-- [x] **September 23 dependency convergence.** Move rawz to the current,
-  intended tiffz parser pin so Validate sees one coherent
-  tiffz/jpegz/libjxlz graph without weakening its duplicate-package or seed
-  freshness controls.
-  - [x] Confirm the current intended tiffz, jpegz, and libjxlz revisions with
-    tiffz and Validate; treat the September 20 `0004f747` work order as a
-    snapshot until verified. Live `yolo` heads and Validate's current work
-    order agree on tiffz `0004f747`, jpegz `3f6066c9`, and libjxlz `93b29e86`
-    (2026-09-23 10:18 EDT).
-  - [x] Repin only the existing `rawz -> tiffz-parser` edge and regenerate the
-    Zig package hash and Nix fixed-output hash (2026-09-23 10:18 EDT).
-  - [x] Prove the resolved graph contains one jpegz/libjxlz generation and that
-    the production-closure gate stays strict (2026-09-23 10:18 EDT).
-  - [x] Pass the canonical suite, direct manifest targets, push verification,
-    and exact-commit Mechatron CI. Commit `67d92c9e5cdd` passed in 6 seconds
-    (2026-09-23 10:28 EDT).
-  - [x] Report exact rawz/tiffz/jpegz/libjxlz revisions and results to tiffz,
-    Validate, and Einstein through durable inbox handoffs (2026-09-23 10:28
-    EDT).
-  - Curiosity poke: a newer tiffz tip may carry unrelated API or closure changes;
-    pin the narrowest current revision that all three projects intend.
+- [ ] Update rawz to current tiffz and flake inputs; regenerate dependency hashes, prove the resolved graph, pass all gates, and ship.
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
-  - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50`
-    and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
-  - [x] Proved the old pin rejected a valid BigTIFF IFD8 SubIFD, then made the
-    same 28-case suite pass on the new pin (2026-08-05 00:18 EDT).
-  - [x] Added a checked, bounded embedded-source classifier and pinned the new
-    dependency error mapping inside rawz's stable error domain (2026-08-05
-    00:23 EDT).
-  - [x] Published and machine-checked the professional-family matrix in
-    `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05
-    00:23 EDT).
-  - [x] Added deterministic PEF Huffman known-good/known-bad and
-    sniper/bolter/shotgun measurements whose declared JSON values are checked
-    against the executable measurement (2026-08-05 00:24 EDT).
-  - [x] Documented the higher-level Validate coordinator and rejected a direct
-    `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
-  - [x] Adopt tiffz's parser-only module and prove the requested first-party-only
-    production closure (2026-08-05 01:40 EDT).
-    - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a`
-      and inject its `tiffz-parser` module exactly once. Curiosity poke: remove
-      every obsolete zlib workaround rather than hiding a stale link edge.
-    - [x] Add a blocking production-closure check over the parser import graph,
-      exact compiler command, shipped ELF, and Nix store references. Curiosity
-      poke: dynamic-section inspection alone misses static or debug-path Nix
-      references.
-    - [x] Preserve the published capability matrix and bounded PEF scorecard,
-      changing only the now-proven closure status and evidence.
-    - [x] Publish exact rawz repin evidence after canonical tests, build, exact
-      Nix targets, and terminal Mechatron success for
-      `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05
-      01:43 EDT).
-  - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron
-    gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in
-    3 seconds (2026-08-05 00:29 EDT).
+  - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50` and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
+  - [x] Proved the old pin rejected a valid BigTIFF IFD8 SubIFD, then made the same 28-case suite pass on the new pin (2026-08-05 00:18 EDT).
+  - [x] Added a checked, bounded embedded-source classifier and pinned the new dependency error mapping inside rawz's stable error domain (2026-08-05 00:23 EDT).
+  - [x] Published and machine-checked the professional-family matrix in `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05 00:23 EDT).
+  - [x] Added deterministic PEF Huffman known-good/known-bad and sniper/bolter/shotgun measurements whose declared JSON values are checked against the executable measurement (2026-08-05 00:24 EDT).
+  - [x] Documented the higher-level Validate coordinator and rejected a direct `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
+  - [x] Adopt tiffz's parser-only module and prove the requested first-party-only production closure (2026-08-05 01:40 EDT).
+    - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a` and inject its `tiffz-parser` module exactly once. Curiosity poke: remove every obsolete zlib workaround rather than hiding a stale link edge.
+    - [x] Add a blocking production-closure check over the parser import graph, exact compiler command, shipped ELF, and Nix store references. Curiosity poke: dynamic-section inspection alone misses static or debug-path Nix references.
+    - [x] Preserve the published capability matrix and bounded PEF scorecard, changing only the now-proven closure status and evidence.
+    - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).
+  - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in 3 seconds (2026-08-05 00:29 EDT).
 
-- [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives
-  in the consumer app purely by accident of history.
-  - [x] Sequencing constraint lifted by Peter via Einstein (2026-07-31 13:58
-    EDT): validate is not mid-release, so the migration may proceed after M2.
-  - [ ] Coordinate the validate-side change through its agent with the moved
-    path, rawz import path, and exact SHA to pin.
-  - [ ] Keep both repositories green and stage only explicit paths; never sweep
-    other agents' concurrent work into a commit.
-  - [x] Repin tiffz from vulnerable `d03c9d2` to at least `b3b8871a`, which
-    includes the `Ifd.parse` allocation-failure double-free fix (`2a431856`)
-    and BigTIFF `IFD8` support. Regenerate dependency hashes and pass the full
-    rawz gates before validate pins M3.
-    - Curiosity poke: the intervening commits add bounded subranges and a
-      distinct embedded-JPEG error, so verify rawz's adapter error mapping and
-      offset semantics rather than treating this as a hash-only repin.
-  - [x] Reproduce validate's packed-12 behavior in rawz before moving code, and
-    add the missing maximum-dimension overflow case.
-  - [x] Give rawz a focused in-memory MSB bit reader for the PEF Huffman path;
-    validate's shared media reader stays with its other consumers.
-  - [ ] Preserve the existing public names so validate's change is an import
-    replacement, then publish the exact rawz SHA for its agent to pin.
-  - [ ] Correct validate's dispatch contract: TIFF compression 32773 is
-    PackBits, so tiffz must decompress it before `validatePefPacked12`; Pentax's
-    private Huffman compression is 65535.
-  - [x] Curiosity poke: malformed Huffman tables and unsupported bit depths
-    must return typed errors without a trap or an unbounded decode loop.
-  - [x] Rerun all 13 deep-review dimensions sequentially after the prior OOM;
-    fix every functional, coverage, complexity, clarity, and error-domain
-    finding before publishing the rawz migration commit.
-  - [x] Pass direct sandboxed build/test checks and canonical `./test` for the
-    rawz-side migration.
+- [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives in the consumer app purely by accident of history.
+  - [ ] Coordinate the validate-side change through its agent with the moved path, rawz import path, and exact SHA to pin.
+  - [ ] Keep both repositories green and stage only explicit paths; never sweep other agents' concurrent work into a commit.
+  - [ ] Preserve the existing public names so validate's change is an import replacement, then publish the exact rawz SHA for its agent to pin.
+  - [ ] Correct validate's dispatch contract: TIFF compression 32773 is PackBits, so tiffz must decompress it before `validatePefPacked12`; Pentax's private Huffman compression is 65535.
 
 ## Next
 
-- [ ] **M4 — detection research (the product payoff).** Test the two hypotheses
-  in `INTENT.md` against real data:
-  - [ ] **Compression-variant split.** Re-measure corruption detection per
-    *compression variant*, never per extension. NEF/ARW/CR2 ship compressed AND
-    uncompressed; entropy-coded data desynchronizes on a bit flip and should be
-    detectable like JPEG. A uniform "RAW ≈ 0%" strongly suggests uncompressed
-    fixtures.
-  - [ ] **Bit-depth headroom check.** 12/14-bit samples in 16-bit words ⇒ top
-    2–4 bits zero by construction. Assert across the sample array. Exact, cheap,
-    no checksum needed. Add white/black-level bounds from file metadata.
-  - [ ] Bayer neighbour statistics — only if the above fall short. Statistical,
-    so it needs a specificity corpus (legitimate high-ISO noise must NOT trip).
-- [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software
-  testing) is the primary source — **verify license terms at fetch time**.
-  Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans.
-  darktable **cannot generate** RAW, only read it.
-- [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers /
-  1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to
-  rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both
-  pass = genuinely undetectable, and Mecha RotShield parity is the honest
-  answer. **Run it, never read it** — cleanroom.
+- [ ] **M4 — detection research (the product payoff).** Test the two hypotheses in `INTENT.md` against real data:
+  - [ ] **Compression-variant split.** Re-measure corruption detection per *compression variant*, never per extension. NEF/ARW/CR2 ship compressed AND uncompressed; entropy-coded data desynchronizes on a bit flip and should be detectable like JPEG. A uniform "RAW ≈ 0%" strongly suggests uncompressed fixtures.
+  - [ ] **Bit-depth headroom check.** 12/14-bit samples in 16-bit words ⇒ top 2–4 bits zero by construction. Assert across the sample array. Exact, cheap, no checksum needed. Add white/black-level bounds from file metadata.
+  - [ ] Bayer neighbour statistics — only if the above fall short. Statistical, so it needs a specificity corpus (legitimate high-ISO noise must NOT trip).
+- [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
+- [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = genuinely undetectable, and Mecha RotShield parity is the honest answer. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).
-
-## Deferred / explicitly not doing
-
-- Demosaicing, colour science, rendering, conversion. Out of scope for v1; see
-  `INTENT.md`.
-- Moving `dng.zig` out of tiffz. It is correctly placed — DNG is a public
-  TIFF/EP standard.
 
 ## Completed
 
-- [x] **M2 — format classification, as a set classifier** (2026-08-03 11:19
-  EDT). Answers "is this a photographic TIFF or camera RAW, and which vendor?"
-  from tiffz-reported semantic evidence.
-  - [x] Separated the allocation-free `Evidence` policy from TIFF byte/tag
-    decoding in the tiffz adapter.
-  - [x] Classified CR2/NEF/ARW/ORF/PEF/DNG/3FR/RW2 sensitivity and photographic
-    TIFF specificity cases in one table, including the `pc260001.tif` ORF trap.
-  - [x] Normalized vendor ASCII without allocating and kept bounded prefixes of
-    long Make/Model values.
-  - [x] Traversed linked, Exif, nested, repeated, and cyclic IFD references with
-    one deduplicated, aggregate-limited offset set.
-  - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded
-    every disposition in `CODE_REVIEW.md`.
-  - [x] Published stable append-only C format/status enums and
-    `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
+- [x] **M2 — format classification, as a set classifier** (2026-08-03 11:19 EDT). Answers "is this a photographic TIFF or camera RAW, and which vendor?" from tiffz-reported semantic evidence.
+  - [x] Separated the allocation-free `Evidence` policy from TIFF byte/tag decoding in the tiffz adapter.
+  - [x] Classified CR2/NEF/ARW/ORF/PEF/DNG/3FR/RW2 sensitivity and photographic TIFF specificity cases in one table, including the `pc260001.tif` ORF trap.
+  - [x] Normalized vendor ASCII without allocating and kept bounded prefixes of long Make/Model values.
+  - [x] Traversed linked, Exif, nested, repeated, and cyclic IFD references with one deduplicated, aggregate-limited offset set.
+  - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded every disposition in `CODE_REVIEW.md`.
+  - [x] Published stable append-only C format/status enums and `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
   - [x] Passed direct sandboxed build/test checks and canonical `./test`.
 - [x] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
-  - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and
-    independently verified `origin/yolo` matched.
-  - [x] Mechatron built the manifest-selected package and test targets for that
-    exact commit and reported terminal `success` in 20 seconds.
-- [x] **M1 — added tiffz as a dependency** (2026-07-31 13:47 EDT).
-  - [x] Pinned tiffz `d03c9d2` and raised the package minimum to Zig 0.16.0.
-  - [x] Proved the import contract red before wiring the module, then green.
-  - [x] Added zlib to native and sandbox environments and forwarded explicit
-    paths for Darwin builds.
-  - [x] Regenerated the non-empty dependency FOD hash and proved its offline
-    cache with both canonical `./test` checks.
-- [x] **M0 — scaffold verified green** (2026-07-31 13:42 EDT).
-  - [x] Confirmed `.fingerprint = 0x79c9610f3a3708b0` was already committed in
-    the untouched scaffold (`038340c`).
-  - [x] `./test` passed both the sandboxed ReleaseSafe test check and the
-    ReleaseFast package build before any project-code change.
+  - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and independently verified `origin/yolo` matched.
+  - [x] Mechatron built the manifest-selected package and test targets for that exact commit and reported terminal `success` in 20 seconds.
