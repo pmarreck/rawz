@@ -27,3 +27,11 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
 - [x] [Completed] **M0 — scaffold verified green** (2026-07-31 13:42 EDT).
   - [x] Confirmed `.fingerprint = 0x79c9610f3a3708b0` was already committed in the untouched scaffold (`038340c`).
   - [x] `./test` passed both the sandboxed ReleaseSafe test check and the ReleaseFast package build before any project-code change.
+- [x] [Completed] **M2 — format classification, as a set classifier** (2026-08-03 11:19 EDT). Answers "is this a photographic TIFF or camera RAW, and which vendor?" from tiffz-reported semantic evidence.
+  - [x] Separated the allocation-free `Evidence` policy from TIFF byte/tag decoding in the tiffz adapter.
+  - [x] Classified CR2/NEF/ARW/ORF/PEF/DNG/3FR/RW2 sensitivity and photographic TIFF specificity cases in one table, including the `pc260001.tif` ORF trap.
+  - [x] Normalized vendor ASCII without allocating and kept bounded prefixes of long Make/Model values.
+  - [x] Traversed linked, Exif, nested, repeated, and cyclic IFD references with one deduplicated, aggregate-limited offset set.
+  - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded every disposition in `CODE_REVIEW.md`.
+  - [x] Published stable append-only C format/status enums and `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
+  - [x] Passed direct sandboxed build/test checks and canonical `./test`.

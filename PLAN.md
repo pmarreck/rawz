@@ -4,7 +4,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
-- [ ] Update rawz to current tiffz and flake inputs; regenerate dependency hashes, prove the resolved graph, pass all gates, and ship.
+- [x] Update rawz to current tiffz and flake inputs; package heads were already current, nixpkgs advanced to `34ca302a`, the resolved graph and all gates passed, and Mechatron passed `f793ce6` in 54 seconds (done 2026-09-24 17:03 EDT; commits `662fca3`, `f793ce6`).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50` and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
@@ -38,14 +38,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## Completed
 
-- [x] **M2 — format classification, as a set classifier** (2026-08-03 11:19 EDT). Answers "is this a photographic TIFF or camera RAW, and which vendor?" from tiffz-reported semantic evidence.
-  - [x] Separated the allocation-free `Evidence` policy from TIFF byte/tag decoding in the tiffz adapter.
-  - [x] Classified CR2/NEF/ARW/ORF/PEF/DNG/3FR/RW2 sensitivity and photographic TIFF specificity cases in one table, including the `pc260001.tif` ORF trap.
-  - [x] Normalized vendor ASCII without allocating and kept bounded prefixes of long Make/Model values.
-  - [x] Traversed linked, Exif, nested, repeated, and cyclic IFD references with one deduplicated, aggregate-limited offset set.
-  - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded every disposition in `CODE_REVIEW.md`.
-  - [x] Published stable append-only C format/status enums and `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
-  - [x] Passed direct sandboxed build/test checks and canonical `./test`.
 - [x] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
   - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and independently verified `origin/yolo` matched.
   - [x] Mechatron built the manifest-selected package and test targets for that exact commit and reported terminal `success` in 20 seconds.
