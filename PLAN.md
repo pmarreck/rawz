@@ -8,7 +8,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
-    - [ ] Ship PEF syntax validation first: finish decoder migration, correct 32773/65535 dispatch, return stable depth results with offsets, measure coverage, and notify Validate.
+    - [x] Ship PEF syntax validation first: compression-aware 32773/65535 dispatch, bounded AOC MakerNote lookup, stable depth results with offsets, real 97/100 random-byte and 100/100 EOF coverage, exact-SHA Validate handoff, and terminal Mechatron pass (done 2026-09-24 20:10 EDT; `ef74184`).
     - [ ] Ship DNG/CR2/compressed-NEF lossless-JPEG syntax validation and independent per-variant coverage.
     - [ ] Ship uncompressed 12/14-bit headroom and metadata-bound checks, returning structural with a reach reason when bytes remain unchecked.
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
@@ -31,9 +31,3 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 - [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
 - [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = genuinely undetectable, and Mecha RotShield parity is the honest answer. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).
-
-## Completed
-
-- [x] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
-  - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and independently verified `origin/yolo` matched.
-  - [x] Mechatron built the manifest-selected package and test targets for that exact commit and reported terminal `success` in 20 seconds.

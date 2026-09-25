@@ -35,3 +35,6 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
   - [x] Reran all 13 OOM-interrupted review dimensions sequentially and recorded every disposition in `CODE_REVIEW.md`.
   - [x] Published stable append-only C format/status enums and `rawz_classify_buffer`, tested through Zig and a compiled C consumer.
   - [x] Passed direct sandboxed build/test checks and canonical `./test`.
+- [x] [Completed] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
+  - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and independently verified `origin/yolo` matched.
+  - [x] Mechatron built the manifest-selected package and test targets for that exact commit and reported terminal `success` in 20 seconds.
