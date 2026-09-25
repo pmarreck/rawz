@@ -43,3 +43,7 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
 - [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Added a checked, bounded embedded-source classifier and pinned the new dependency error mapping inside rawz's stable error domain (2026-08-05 00:23 EDT).
 - [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Published and machine-checked the professional-family matrix in `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05 00:23 EDT).
 - [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Added deterministic PEF Huffman known-good/known-bad and sniper/bolter/shotgun measurements whose declared JSON values are checked against the executable measurement (2026-08-05 00:24 EDT).
+
+## Retired 2026-09-25
+
+- [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Documented the higher-level Validate coordinator and rejected a direct `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).

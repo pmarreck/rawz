@@ -32,3 +32,13 @@ This evidence qualifies the 12-bit version-`0x46` lossless variant. The 14-bit
 table has deterministic synthetic coverage but no real-file scorecard yet.
 Lossy tables, split-row tables, packed data, and other Nikon metadata versions
 remain structural.
+
+Validate independently repeated its whole-file D300 runs at source commit
+`3dc478a2d` on 2026-09-25 with test-trust binary SHA-256
+`597c837b732091ff50b673a16189838ac7e393b792ff3d40850004137b980108`.
+The compressed control used seed `1790365110` and rejected 158/510 sniper
+mutations (31.0%, 95% CI [27.1, 35.1]) plus 484/490 shotgun mutations (98.8%).
+The uncompressed control used seed `1790365088` and rejected 64/501 sniper
+mutations (12.8%, 95% CI [10.1, 16.0]) plus 495/499 shotgun mutations (99.2%).
+Both seeds replayed exactly. These rates agree with rawz's seed-42 measurements
+within their confidence intervals.
