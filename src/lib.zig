@@ -16,6 +16,7 @@ const tiffz = @import("tiffz");
 pub const classification = @import("classification.zig");
 pub const capabilities = @import("capabilities.zig");
 pub const pef_decoder = @import("pef_decoder.zig");
+pub const sensor_validation = @import("sensor_validation.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
 
 // ── C FFI exports ───────────────────────────────────────────────────────

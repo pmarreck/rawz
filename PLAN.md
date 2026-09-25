@@ -7,6 +7,12 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 - [x] Update rawz to current tiffz and flake inputs; package heads were already current, nixpkgs advanced to `34ca302a`, the resolved graph and all gates passed, and Mechatron passed `f793ce6` in 54 seconds (done 2026-09-24 17:03 EDT; commits `662fca3`, `f793ce6`).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
+  - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
+    - [ ] Ship PEF syntax validation first: finish decoder migration, correct 32773/65535 dispatch, return stable depth results with offsets, measure coverage, and notify Validate.
+    - [ ] Ship DNG/CR2/compressed-NEF lossless-JPEG syntax validation and independent per-variant coverage.
+    - [ ] Ship uncompressed 12/14-bit headroom and metadata-bound checks, returning structural with a reach reason when bytes remain unchecked.
+    - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
+    - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
   - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50` and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
   - [x] Proved the old pin rejected a valid BigTIFF IFD8 SubIFD, then made the same 28-case suite pass on the new pin (2026-08-05 00:18 EDT).
   - [x] Added a checked, bounded embedded-source classifier and pinned the new dependency error mapping inside rawz's stable error domain (2026-08-05 00:23 EDT).
@@ -20,18 +26,8 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
     - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).
   - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in 3 seconds (2026-08-05 00:29 EDT).
 
-- [ ] **M3 — migrate `pef_decoder.zig` out of validate** (Pentax PEF). It lives in the consumer app purely by accident of history.
-  - [ ] Coordinate the validate-side change through its agent with the moved path, rawz import path, and exact SHA to pin.
-  - [ ] Keep both repositories green and stage only explicit paths; never sweep other agents' concurrent work into a commit.
-  - [ ] Preserve the existing public names so validate's change is an import replacement, then publish the exact rawz SHA for its agent to pin.
-  - [ ] Correct validate's dispatch contract: TIFF compression 32773 is PackBits, so tiffz must decompress it before `validatePefPacked12`; Pentax's private Huffman compression is 65535.
-
 ## Next
 
-- [ ] **M4 — detection research (the product payoff).** Test the two hypotheses in `INTENT.md` against real data:
-  - [ ] **Compression-variant split.** Re-measure corruption detection per *compression variant*, never per extension. NEF/ARW/CR2 ship compressed AND uncompressed; entropy-coded data desynchronizes on a bit flip and should be detectable like JPEG. A uniform "RAW ≈ 0%" strongly suggests uncompressed fixtures.
-  - [ ] **Bit-depth headroom check.** 12/14-bit samples in 16-bit words ⇒ top 2–4 bits zero by construction. Assert across the sample array. Exact, cheap, no checksum needed. Add white/black-level bounds from file metadata.
-  - [ ] Bayer neighbour statistics — only if the above fall short. Statistical, so it needs a specificity corpus (legitimate high-ISO noise must NOT trip).
 - [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
 - [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = genuinely undetectable, and Mecha RotShield parity is the honest answer. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).

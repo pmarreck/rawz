@@ -52,7 +52,7 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqualStrings("clean", closure.get("status").?.string);
     try std.testing.expectEqualStrings("tiffz-parser", closure.get("module").?.string);
     try std.testing.expectEqualStrings(
-        "c57166db87132742c7591c34161c5549133bd09a",
+        "0004f7473645bfe0ddcd24ae4ee95a2863687f98",
         closure.get("tiffz_commit").?.string,
     );
 
@@ -68,4 +68,13 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqual(@as(i64, @intCast(measured.bolter_total)), declared.get("bolter_total").?.integer);
     try std.testing.expectEqual(@as(i64, @intCast(measured.shotgun_detected)), declared.get("shotgun_detected").?.integer);
     try std.testing.expectEqual(@as(i64, @intCast(measured.shotgun_total)), declared.get("shotgun_total").?.integer);
+
+    const strict_declared = root.get("bounded_scorecards").?.object.get("pef_huffman_strict_stream").?.object;
+    const strict_measured = pef_decoder.measurePayloadCoverage();
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.known_good_total)), strict_declared.get("synthetic_known_good").?.integer);
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.false_positives)), strict_declared.get("synthetic_false_positives").?.integer);
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.random_byte_detected)), strict_declared.get("synthetic_random_byte_detected").?.integer);
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.random_byte_total)), strict_declared.get("synthetic_random_byte_total").?.integer);
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.eof_detected)), strict_declared.get("synthetic_eof_detected").?.integer);
+    try std.testing.expectEqual(@as(i64, @intCast(strict_measured.eof_total)), strict_declared.get("synthetic_eof_total").?.integer);
 }

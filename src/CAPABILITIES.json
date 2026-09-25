@@ -17,7 +17,7 @@
   "production_closure": {
     "status": "clean",
     "module": "tiffz-parser",
-    "tiffz_commit": "c57166db87132742c7591c34161c5549133bd09a",
+    "tiffz_commit": "0004f7473645bfe0ddcd24ae4ee95a2863687f98",
     "evidence": "the compiler graph maps rawz's sole tiffz import to src/parser.zig; shipped ELF/Mach-O load metadata and the complete Nix runtime closure reject zlib, OpenJPEG, libjpeg, libjxl, jpegz, zstd, lerc, and lzwz"
   },
   "bounded_scorecards": {
@@ -34,6 +34,21 @@
       "shotgun_detected": 1,
       "shotgun_total": 1,
       "qualification": "This proves the bounded PEF entropy validator slice, not PEF container dispatch or any other RAW family."
+    },
+    "pef_huffman_strict_stream": {
+      "scope": "strict syntax-to-end validation for Pentax compression 65535 with compression-aware dispatch, bounded AOC MakerNote table lookup, stable failure codes, and byte offsets",
+      "synthetic_known_good": 1,
+      "synthetic_false_positives": 0,
+      "synthetic_random_byte_detected": 256,
+      "synthetic_random_byte_total": 256,
+      "synthetic_eof_detected": 256,
+      "synthetic_eof_total": 256,
+      "real_fixture_sha256": "e35ae4154a468be3154f5f462e884ba5941f010d3e8f23d347fbec14809f44d3",
+      "real_fixture_random_byte_detected": 97,
+      "real_fixture_random_byte_total": 100,
+      "real_fixture_eof_detected": 100,
+      "real_fixture_eof_total": 100,
+      "qualification": "The real-file measurement covers one CC0 Pentax K10D 12-bit compressed PEF. PackBits 32773 remains structural after tiffz decompression because arbitrary packed sample values carry no integrity signal."
     }
   },
   "families": [
@@ -51,7 +66,7 @@
       "container": "TIFF plus Pentax private data",
       "classification_state": "partial",
       "validation_state": "partial",
-      "evidence": "synthetic semantic classification plus strict bounded packed-12 truncation and private-Huffman stream checks; container-to-stream dispatch is not wired"
+      "evidence": "compression-aware payload dispatch distinguishes TIFF PackBits 32773 from Pentax Huffman 65535; bounded AOC MakerNote lookup supplies the table and byte order; strict Huffman syntax-to-end validation passes a CC0 K10D stream and returns stable codes plus byte offsets"
     },
     {
       "id": "cr2",

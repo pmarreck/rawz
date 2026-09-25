@@ -50,8 +50,28 @@ Future structured findings need both fields:
 - `host_offset`: checked translation into the top-level file, plus an
   exact/inexact flag when a parser can identify only a containing range.
 
-The current classification API returns no findings, so it makes no offset
-claim beyond the tested bounded view.
+The classification API returns no findings, so it makes no offset claim beyond
+the tested bounded view. Sensor validators return
+`sensor_validation.Result`: `full`, `structural` plus an append-only reach
+reason, or `fail` plus an append-only error code, byte region, and byte offset.
+For PEF, `.payload` offsets are relative to the supplied strip and `.metadata`
+offsets are relative to the supplied Huffman-table bytes. Validate adds the
+checked host base of the corresponding range.
+
+PEF compression dispatch is stage-aware. TIFF PackBits code `32773` accepts
+only `.tiff_decoded` bytes after tiffz has checked and removed PackBits; rawz
+then checks the 12-bit extent and returns structural because arbitrary sample
+values have no integrity signal. Pentax private Huffman code `65535` accepts
+`.encoded` bytes and an optional MakerNote table plus its byte order. A present
+table enables strict syntax-to-end validation; a missing table returns the
+named structural reach reason `huffman_table_unavailable`.
+
+`pef_decoder.findPefHuffmanTable` locates tag `0x0220` in the supported AOC
+MakerNote layout. The caller supplies the bounded MakerNote bytes and their
+host-file offset because the tag stores a host-absolute table offset. The
+locator checks subtraction and extent before returning borrowed table bytes,
+their byte order, and a MakerNote-relative offset. Other MakerNote layouts
+return `unsupported_metadata_layout` without condemning the file.
 
 ## Production closure gate
 
