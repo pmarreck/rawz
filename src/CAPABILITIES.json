@@ -49,6 +49,18 @@
       "real_fixture_eof_detected": 100,
       "real_fixture_eof_total": 100,
       "qualification": "The real-file measurement covers one CC0 Pentax K10D 12-bit compressed PEF. PackBits 32773 remains structural after tiffz decompression because arbitrary packed sample values carry no integrity signal."
+    },
+    "uncompressed_14bit_words": {
+      "scope": "big-endian 14-bit Nikon CFA samples stored in contiguous 16-bit words; high-bit headroom is checked but black/white level metadata is unavailable",
+      "real_fixture_sha256": "0261523d0ab4694df0219404eb08af5db04697a05e85718e7f7bd42d283205f4",
+      "baseline_result": "structural:metadata_levels_unavailable",
+      "single_bit_flip_detected": 140,
+      "single_bit_flip_total": 1000,
+      "different_byte_detected": 348,
+      "different_byte_total": 1000,
+      "eof_detected": 100,
+      "eof_total": 100,
+      "qualification": "The real-file measurement covers the contiguous 14-bit uncompressed sensor strips of one CC0 Nikon D300 NEF. It does not cover packed samples, row padding, compressed NEF, or absent metadata levels."
     }
   },
   "families": [
@@ -81,8 +93,8 @@
       "extensions": ["nef", "nrw"],
       "container": "TIFF plus Nikon private data",
       "classification_state": "partial",
-      "validation_state": "unsupported",
-      "evidence": "synthetic Nikon semantic classification exists; compressed and uncompressed sensor variants are not validated"
+      "validation_state": "partial",
+      "evidence": "the shared 12/14-bit word validator checks byte order, exact extent, high-bit headroom, and optional black/white bounds; a CC0 D300 14-bit uncompressed stream reaches structural because level metadata is unavailable, while compressed Nikon Huffman remains unsupported"
     },
     {
       "id": "arw-sr2-srf",

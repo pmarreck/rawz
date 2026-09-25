@@ -580,7 +580,12 @@ fn decodeErrorFromCode(code: sensor_validation.ErrorCode) PefDecodeError {
         .invalid_dimensions => error.DimensionsTooLarge,
         .unsupported_bit_depth => error.UnsupportedBitDepth,
         .work_limit_exceeded => error.WorkLimitExceeded,
-        .trailing_mismatch, .metadata_out_of_bounds, .malformed_metadata => error.InvalidHuffmanCode,
+        .trailing_mismatch,
+        .metadata_out_of_bounds,
+        .malformed_metadata,
+        .sample_below_black_level,
+        .sample_above_white_level,
+        => error.InvalidHuffmanCode,
     };
 }
 

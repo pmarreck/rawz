@@ -14,6 +14,8 @@ pub const ErrorCode = enum(u16) {
     trailing_mismatch = 7,
     metadata_out_of_bounds = 8,
     malformed_metadata = 9,
+    sample_below_black_level = 10,
+    sample_above_white_level = 11,
 };
 
 /// The byte range in which a failure offset is measured.
@@ -36,6 +38,7 @@ pub const ReachReason = enum(u16) {
     huffman_table_unavailable = 3,
     unsupported_compression = 4,
     unsupported_metadata_layout = 5,
+    metadata_levels_unavailable = 6,
 };
 
 /// A direct mapping surface for Validate: full, structural, or fail.
@@ -50,8 +53,11 @@ test "sensor result codes use stable explicit 16-bit values" {
     try std.testing.expectEqual(@as(u16, 0), @intFromEnum(ErrorCode.invalid_dimensions));
     try std.testing.expectEqual(@as(u16, 7), @intFromEnum(ErrorCode.trailing_mismatch));
     try std.testing.expectEqual(@as(u16, 9), @intFromEnum(ErrorCode.malformed_metadata));
+    try std.testing.expectEqual(@as(u16, 10), @intFromEnum(ErrorCode.sample_below_black_level));
+    try std.testing.expectEqual(@as(u16, 11), @intFromEnum(ErrorCode.sample_above_white_level));
     try std.testing.expectEqual(u16, @typeInfo(ReachReason).@"enum".tag_type);
     try std.testing.expectEqual(@as(u16, 0), @intFromEnum(ReachReason.requires_tiff_decompression));
     try std.testing.expectEqual(@as(u16, 4), @intFromEnum(ReachReason.unsupported_compression));
     try std.testing.expectEqual(@as(u16, 5), @intFromEnum(ReachReason.unsupported_metadata_layout));
+    try std.testing.expectEqual(@as(u16, 6), @intFromEnum(ReachReason.metadata_levels_unavailable));
 }

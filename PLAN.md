@@ -14,10 +14,9 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
       - [ ] Integrate DNG CFA compression 7 after tiffz delivers its jpegz-owned path.
       - [ ] Integrate CR2 after jpegz delivers Canon's two-component subsampled SOF3 path and tiffz repins it.
       - [ ] Implement Nikon Huffman for compressed NEF; the ratified matrix identifies this as proprietary entropy coding, not the DNG/CR2 lossless-JPEG seam.
-    - [ ] Ship uncompressed 12/14-bit headroom and metadata-bound checks, returning structural with a reach reason when bytes remain unchecked.
+    - [x] Ship uncompressed 12/14-bit word headroom and metadata-bound checks with stable offsets, a named missing-level reach reason, and real CC0 D300 evidence (done 2026-09-24 20:38 EDT).
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
-  - [x] Repinned tiffz to `b3b8871ab17defa209f8ce368900a43eb6540a50` and regenerated both Zig and Nix dependency hashes (2026-08-05 00:21 EDT).
   - [x] Added a checked, bounded embedded-source classifier and pinned the new dependency error mapping inside rawz's stable error domain (2026-08-05 00:23 EDT).
   - [x] Published and machine-checked the professional-family matrix in `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05 00:23 EDT).
   - [x] Added deterministic PEF Huffman known-good/known-bad and sniper/bolter/shotgun measurements whose declared JSON values are checked against the executable measurement (2026-08-05 00:24 EDT).

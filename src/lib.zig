@@ -19,6 +19,7 @@ pub const cr2_sensor = @import("cr2_sensor.zig");
 pub const pef_decoder = @import("pef_decoder.zig");
 pub const sensor_validation = @import("sensor_validation.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
+pub const uncompressed_sensor = @import("uncompressed_sensor.zig");
 
 // ── C FFI exports ───────────────────────────────────────────────────────
 
@@ -187,6 +188,7 @@ test "public parsing modules are available through rawz" {
     _ = capabilities;
     _ = cr2_sensor;
     _ = tiff_adapter;
+    _ = uncompressed_sensor;
 }
 
 test "PEF decoder is available through the public rawz module" {
