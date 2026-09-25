@@ -15,6 +15,12 @@ matched the declared hash. Its sensor SubIFD contains 4352 by 2868 big-endian
 starts at file offset `704832`, is `24963072` bytes long, and ends exactly at
 EOF.
 
+`nef_sensor.locateSensorPayload` discovers and combines that range from the
+TIFF SubIFD arrays; the caller does not hard-code the offsets. The same locator
+classifies the 12-bit lossless-compressed D300 control, SHA-256
+`7e6d38ddebe82784dc8c84cdf02dce7bcfe74b71b0dec91b28551936102c39b9`,
+as `nikon_huffman` at file offset `700192` with byte count `10855480`.
+
 The baseline completes the headroom pass and returns
 `structural(metadata_levels_unavailable)`. Nikon does not expose usable
 black/white bounds for this variant, so rawz does not promote it to full.

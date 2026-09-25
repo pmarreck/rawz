@@ -94,7 +94,7 @@
       "container": "TIFF plus Nikon private data",
       "classification_state": "partial",
       "validation_state": "partial",
-      "evidence": "the shared 12/14-bit word validator checks byte order, exact extent, high-bit headroom, and optional black/white bounds; a CC0 D300 14-bit uncompressed stream reaches structural because level metadata is unavailable, while compressed Nikon Huffman remains unsupported"
+      "evidence": "the NEF CFA SubIFD locator combines only contiguous strips and identifies uncompressed words versus Nikon compression 34713; the shared word validator checks byte order, exact extent, high-bit headroom, and optional black/white bounds; a CC0 D300 14-bit uncompressed stream reaches structural because level metadata is unavailable, while compressed Nikon Huffman syntax remains unsupported"
     },
     {
       "id": "arw-sr2-srf",

@@ -111,5 +111,9 @@ range and the result is `full`. Without levels, the same byte pass returns
 `structural(metadata_levels_unavailable)` rather than claiming full depth.
 
 Packed samples, row padding, multiple samples per pixel, and noncontiguous
-strips are outside this function's contract. Validate or the container owner
-must assemble an exact contiguous word view before calling it.
+strips are outside this function's contract. `nef_sensor.locateSensorPayload`
+walks Nikon CFA SubIFDs, combines only contiguous strips, and returns dimensions,
+bit depth, byte order, exact host range, and either `uncompressed_words` or
+`nikon_huffman`. Validate passes an uncompressed returned range to the word
+validator. Nikon compression `34713` remains structural until its entropy
+decoder ships.

@@ -23,6 +23,7 @@ annotate=[
 	src/classification.zig = Allocation-free Evidence-to-Format policy with one sensitivity/specificity classifier set
 	src/cr2_sensor.zig = Locates Canon CR2 raw lossless-JPEG sensor strip with bounded exact offsets.
 	src/lib.zig = Pure rawz library/FFI root layered on the imported tiffz container parser
+	src/nef_sensor.zig = Locates Nikon CFA SubIFD ranges and distinguishes word versus Huffman payloads.
 	src/pef_decoder.zig = Pentax packed-12 and lossless-Huffman validation migrated from validate
 	src/sensor_validation.zig = Stable full/structural/fail sensor-validation result domain
 	src/tiff_adapter.zig = Bounded tiffz IFD traversal, semantic-tag validation, and stable rawz error mapping
