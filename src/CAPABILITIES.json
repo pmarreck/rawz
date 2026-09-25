@@ -74,7 +74,7 @@
       "container": "TIFF plus Canon private data",
       "classification_state": "partial",
       "validation_state": "unsupported",
-      "evidence": "synthetic semantic classification exists; Canon lossless-JPEG sensor payload is not validated by rawz"
+      "evidence": "the proprietary CR2 raw-IFD pointer and bounded single-strip lossless-JPEG payload are located with exact host offsets; a CC0 EOS 20D stream is blocked because jpegz does not yet support Canon's two-component subsampled SOF3 layout"
     },
     {
       "id": "nef-nrw",

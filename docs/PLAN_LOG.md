@@ -38,3 +38,4 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
 - [x] [Completed] **Mechatron Prime CI activated** (2026-08-03 11:22 EDT).
   - [x] Published M2 as `c79d729668668aa66e405a3e88bf1523794b220e` and independently verified `origin/yolo` matched.
   - [x] Mechatron built the manifest-selected package and test targets for that exact commit and reported terminal `success` in 20 seconds.
+- [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Proved the old pin rejected a valid BigTIFF IFD8 SubIFD, then made the same 28-case suite pass on the new pin (2026-08-05 00:18 EDT).

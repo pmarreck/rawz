@@ -75,7 +75,7 @@ return `unsupported_metadata_layout` without condemning the file.
 
 ## Production closure gate
 
-rawz pins tiffz commit `c57166db87132742c7591c34161c5549133bd09a` and
+rawz pins tiffz commit `0004f7473645bfe0ddcd24ae4ee95a2863687f98` and
 imports its `tiffz-parser` module. The named module contains the header, source,
 limits, IFD, tag, and decoder traversal surface without compression codecs.
 
@@ -85,3 +85,18 @@ load metadata and rejects codec paths. Nix independently rejects zlib,
 OpenJPEG, libjpeg, libjxl, zstd, and lerc as direct references or transitive
 runtime requisites. Release artifacts are stripped so build-tool source paths
 cannot pull Zig's own codec closure into the shipped output.
+
+## CR2 lossless-JPEG handoff
+
+`cr2_sensor.locateSensorPayload` reads Canon's proprietary raw-IFD pointer from
+the CR2 header, parses that IFD through `tiffz-parser`, and returns the bounded
+sensor strip with its file-relative offset, byte count, TIFF compression code,
+and `lossless_jpeg` codec identity. It accepts Canon's compression code `6` and
+standard JPEG-in-TIFF code `7`. A valid unsupported layout returns a structural
+reach reason; malformed metadata returns a stable failure code and metadata
+offset.
+
+rawz does not import jpegz. Validate passes the returned slice to its single
+`tiffz.jpegz` instance and adds the returned host base to any jpegz finding
+offset. The CC0 EOS 20D control proves the locator but currently reaches jpegz
+`unsupported` because its SOF3 stream uses two components with non-1x1 sampling.
