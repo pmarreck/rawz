@@ -21,6 +21,8 @@ pub const Input = struct {
 
 /// Validate one CFA sample per 16-bit word. Every supplied byte belongs to one
 /// declared sample; padding and packed layouts must use another validator.
+/// Successful validation remains structural because each sample's low byte can
+/// hold any value, exceeding the fleet's 10% any-legal-byte ceiling for full.
 pub fn validate16BitWords(input: Input) Result {
     if (input.width == 0 or input.height == 0) {
         return metadataFailure(.invalid_dimensions);
@@ -72,7 +74,7 @@ pub fn validate16BitWords(input: Input) Result {
     return if (input.levels == null)
         .{ .structural = .metadata_levels_unavailable }
     else
-        .{ .full = {} };
+        .{ .structural = .sample_values_have_no_integrity_signal };
 }
 
 fn metadataFailure(code: sensor_validation.ErrorCode) Result {
@@ -91,7 +93,7 @@ fn payloadFailure(code: sensor_validation.ErrorCode, byte_offset: u64) Result {
     } };
 }
 
-test "accepts every 12-bit word inside declared black and white levels" {
+test "valid level-bounded words stay structural because low bytes carry no integrity signal" {
     const bytes = [_]u8{
         0x00, 0x01,
         0x00, 0x08,
@@ -100,7 +102,7 @@ test "accepts every 12-bit word inside declared black and white levels" {
     };
 
     try std.testing.expectEqual(
-        Result{ .full = {} },
+        Result{ .structural = .sample_values_have_no_integrity_signal },
         validate16BitWords(.{
             .bytes = &bytes,
             .width = 2,
@@ -199,7 +201,7 @@ test "classifies 12- and 14-bit word byte orders as one supported set" {
 
     for (cases) |case| {
         try std.testing.expectEqual(
-            Result{ .full = {} },
+            Result{ .structural = .sample_values_have_no_integrity_signal },
             validate16BitWords(.{
                 .bytes = &case.bytes,
                 .width = 1,

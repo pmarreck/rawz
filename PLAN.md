@@ -16,9 +16,9 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
       - [ ] Implement Nikon Huffman for compressed NEF; the ratified matrix identifies this as proprietary entropy coding, not the DNG/CR2 lossless-JPEG seam.
         - [x] Ship a bounded NEF CFA SubIFD locator that combines contiguous strips and distinguishes uncompressed words from Nikon compression 34713 (done 2026-09-24 20:46 EDT).
     - [x] Ship uncompressed 12/14-bit word headroom and metadata-bound checks with stable offsets, a named missing-level reach reason, and real CC0 D300 evidence (done 2026-09-24 20:38 EDT).
+    - [x] Keep every uncompressed-word path structural under Peter's 10% any-legal-byte ceiling, including streams with valid black/white levels (done 2026-09-24 20:52 EDT).
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
-  - [x] Published and machine-checked the professional-family matrix in `src/CAPABILITIES.json`, including honest unsupported states (2026-08-05 00:23 EDT).
   - [x] Added deterministic PEF Huffman known-good/known-bad and sniper/bolter/shotgun measurements whose declared JSON values are checked against the executable measurement (2026-08-05 00:24 EDT).
   - [x] Documented the higher-level Validate coordinator and rejected a direct `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
   - [x] Adopt tiffz's parser-only module and prove the requested first-party-only production closure (2026-08-05 01:40 EDT).

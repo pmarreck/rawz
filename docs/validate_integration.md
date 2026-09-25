@@ -107,8 +107,10 @@ offset. The CC0 EOS 20D control proves the locator but currently reaches jpegz
 with explicit dimensions, 12- or 14-bit depth, byte order, and optional
 black/white levels. It checks the exact payload extent and every word's unused
 high bits. With valid levels, every sample must also fall inside the declared
-range and the result is `full`. Without levels, the same byte pass returns
-`structural(metadata_levels_unavailable)` rather than claiming full depth.
+range, then the result is `structural(sample_values_have_no_integrity_signal)`.
+Without levels, the same byte pass returns
+`structural(metadata_levels_unavailable)`. Uncompressed words cannot earn full
+depth because their low bytes exceed Peter's 10% any-legal-byte ceiling.
 
 Packed samples, row padding, multiple samples per pixel, and noncontiguous
 strips are outside this function's contract. `nef_sensor.locateSensorPayload`

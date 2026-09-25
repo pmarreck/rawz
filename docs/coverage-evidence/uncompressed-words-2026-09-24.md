@@ -6,6 +6,11 @@ unused high bits, and optionally enforces metadata-supplied black and white
 levels. Missing levels produce the named structural reason
 `metadata_levels_unavailable` after the complete headroom pass.
 
+Peter's fleet policy also bars `full` when more than 10% of a file's bytes can
+hold any legal value. Every uncompressed 12- or 14-bit word has an unconstrained
+low byte, so even streams with valid black and white levels return
+`structural(sample_values_have_no_integrity_signal)` after all checks pass.
+
 The real-file control is raw.pixls.us sample
 `Nikon - D300 - 14bit 14bit uncompressed (3:2).NEF`, SHA-256
 `0261523d0ab4694df0219404eb08af5db04697a05e85718e7f7bd42d283205f4`.
