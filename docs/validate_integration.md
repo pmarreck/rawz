@@ -117,5 +117,21 @@ strips are outside this function's contract. `nef_sensor.locateSensorPayload`
 walks Nikon CFA SubIFDs, combines only contiguous strips, and returns dimensions,
 bit depth, byte order, exact host range, and either `uncompressed_words` or
 `nikon_huffman`. Validate passes an uncompressed returned range to the word
-validator. Nikon compression `34713` remains structural until its entropy
-decoder ships.
+validator. Nikon compression `34713` routes through the handoff below; table
+versions outside the supported lossless slice remain structural.
+
+## Nikon lossless-Huffman handoff
+
+`nef_sensor.locateHuffmanMetadata` walks the main TIFF Exif pointer, the Nikon
+MakerNote, and its embedded TIFF to return the bounded `0x0096`
+`NEFLinearizationTable` host range. Its `byte_order` is the parent TIFF order,
+which governs Nikon's initial predictors even when the embedded MakerNote TIFF
+uses another order.
+
+For a `nikon_huffman` payload, Validate passes the located sensor slice,
+dimensions, bit depth, metadata slice, and metadata byte order to
+`nikon_huffman.validate`. Version `0x46` tables receive a strict 12- or 14-bit
+lossless Huffman pass through the final declared sample. Predictor escape,
+truncation, trailing bytes, malformed metadata, and work-limit failures return
+stable codes and payload- or metadata-relative offsets. Other Nikon table
+versions return `structural(unsupported_metadata_layout)`.

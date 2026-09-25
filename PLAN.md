@@ -15,11 +15,11 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
       - [ ] Integrate CR2 after jpegz delivers Canon's two-component subsampled SOF3 path and tiffz repins it.
       - [ ] Implement Nikon Huffman for compressed NEF; the ratified matrix identifies this as proprietary entropy coding, not the DNG/CR2 lossless-JPEG seam.
         - [x] Ship a bounded NEF CFA SubIFD locator that combines contiguous strips and distinguishes uncompressed words from Nikon compression 34713 (done 2026-09-24 20:46 EDT).
+        - [x] Ship Nikon version-0x46 lossless Huffman validation with bounded MakerNote table lookup, a real D300 baseline, 69/100 byte and 100/100 EOF detection, and a 100-mutation rawspeed differential run (done 2026-09-24 21:30 EDT).
     - [x] Ship uncompressed 12/14-bit word headroom and metadata-bound checks with stable offsets, a named missing-level reach reason, and real CC0 D300 evidence (done 2026-09-24 20:38 EDT).
     - [x] Keep every uncompressed-word path structural under Peter's 10% any-legal-byte ceiling, including streams with valid black/white levels (done 2026-09-24 20:52 EDT).
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
-  - [x] Added deterministic PEF Huffman known-good/known-bad and sniper/bolter/shotgun measurements whose declared JSON values are checked against the executable measurement (2026-08-05 00:24 EDT).
   - [x] Documented the higher-level Validate coordinator and rejected a direct `tiffz <-> rawz` dependency cycle (2026-08-05 00:25 EDT).
   - [x] Adopt tiffz's parser-only module and prove the requested first-party-only production closure (2026-08-05 01:40 EDT).
     - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a` and inject its `tiffz-parser` module exactly once. Curiosity poke: remove every obsolete zlib workaround rather than hiding a stale link edge.

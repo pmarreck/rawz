@@ -61,6 +61,18 @@
       "eof_detected": 100,
       "eof_total": 100,
       "qualification": "The real-file measurement covers the contiguous 14-bit uncompressed sensor strips of one CC0 Nikon D300 NEF. Uncompressed words remain structural even with valid levels because their unconstrained low bytes exceed the fleet's 10% any-legal-byte ceiling. It does not cover packed samples, row padding, or compressed NEF."
+    },
+    "nikon_huffman_lossless_12bit": {
+      "scope": "Nikon compression 34713 with a version-0x46 lossless table, bounded MakerNote table lookup, strict syntax-to-end validation, predictor bounds, and stable offsets",
+      "real_fixture_sha256": "7e6d38ddebe82784dc8c84cdf02dce7bcfe74b71b0dec91b28551936102c39b9",
+      "baseline_result": "full",
+      "different_byte_detected": 69,
+      "different_byte_total": 100,
+      "eof_detected": 100,
+      "eof_total": 100,
+      "rawspeed_rejected_rawz_passed": 0,
+      "rawspeed_mutations_total": 100,
+      "qualification": "The real-file measurement covers one CC0 Nikon D300 12-bit lossless-compressed NEF. darktable 5.6.0/rawspeed decoded the baseline and all 100 deterministic byte mutations; rawz rejected 69. Version-0x46 14-bit support has synthetic coverage only, and other Nikon table versions remain structural."
     }
   },
   "families": [
@@ -94,7 +106,7 @@
       "container": "TIFF plus Nikon private data",
       "classification_state": "partial",
       "validation_state": "partial",
-      "evidence": "the NEF CFA SubIFD locator combines only contiguous strips and identifies uncompressed words versus Nikon compression 34713; the shared word validator checks byte order, exact extent, high-bit headroom, and optional black/white bounds; uncompressed words remain structural under the 10% any-legal-byte ceiling, while compressed Nikon Huffman syntax remains unsupported"
+      "evidence": "the NEF CFA SubIFD locator combines only contiguous strips and identifies uncompressed words versus Nikon compression 34713; uncompressed words remain structural under the 10% any-legal-byte ceiling; Nikon version-0x46 12/14-bit lossless Huffman syntax is checked through the declared final sample, with a real D300 12-bit scorecard and other table versions kept structural"
     },
     {
       "id": "arw-sr2-srf",

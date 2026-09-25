@@ -5,6 +5,9 @@ const tiffz = @import("tiffz");
 const sensor_validation = @import("sensor_validation.zig");
 
 const sub_ifds_tag: u16 = 330;
+const exif_ifd_tag: u16 = 34665;
+const maker_note_tag: u16 = 37500;
+const nef_linearization_table_tag: u16 = 0x0096;
 pub const compression_nikon_huffman: u16 = 34713;
 
 pub const Codec = enum(u16) {
@@ -28,6 +31,153 @@ pub const LocateResult = union(enum) {
     structural: sensor_validation.ReachReason,
     fail: sensor_validation.Failure,
 };
+
+pub const HuffmanMetadata = struct {
+    host_offset: u64,
+    byte_count: u64,
+    byte_order: std.builtin.Endian,
+};
+
+pub const MetadataLocateResult = union(enum) {
+    metadata: HuffmanMetadata,
+    structural: sensor_validation.ReachReason,
+    fail: sensor_validation.Failure,
+};
+
+/// Locate Nikon's Huffman predictor/table bytes through the Exif MakerNote.
+/// Returned offsets are relative to the complete NEF, while `byte_order`
+/// remains the parent TIFF order used by Nikon's predictor words.
+pub fn locateHuffmanMetadata(
+    allocator: std.mem.Allocator,
+    bytes: []const u8,
+) error{OutOfMemory}!MetadataLocateResult {
+    var handle = tiffz.source.BufferHandle.init(bytes);
+    const source = tiffz.Source.fromBuffer(&handle);
+    const limits: tiffz.Limits = .{};
+    const header = tiffz.header.parse(source) catch
+        return metadataLocateFailure(.malformed_metadata, 0);
+    const offset_width: tiffz.ifd.OffsetWidth = if (header.bigtiff) .big else .classic;
+    var primary = tiffz.ifd.parse(
+        allocator,
+        source,
+        header.endian,
+        header.ifd0_offset,
+        limits,
+        offset_width,
+    ) catch |err| switch (err) {
+        error.OutOfMemory => return error.OutOfMemory,
+        else => return metadataLocateFailure(.malformed_metadata, header.ifd0_offset),
+    };
+    defer primary.deinit();
+
+    const exif_offset = readSingle(&primary, exif_ifd_tag, header.endian, source) catch
+        return metadataLocateFailure(.malformed_metadata, header.ifd0_offset);
+    if (exif_offset == null) return .{ .structural = .unsupported_metadata_layout };
+    var exif = tiffz.ifd.parse(
+        allocator,
+        source,
+        header.endian,
+        exif_offset.?,
+        limits,
+        offset_width,
+    ) catch |err| switch (err) {
+        error.OutOfMemory => return error.OutOfMemory,
+        else => return metadataLocateFailure(.malformed_metadata, exif_offset.?),
+    };
+    defer exif.deinit();
+
+    const maker_entry = exif.get(maker_note_tag) orelse
+        return .{ .structural = .unsupported_metadata_layout };
+    if (maker_entry.field_type != .undefined and maker_entry.field_type != .byte) {
+        return metadataLocateFailure(.malformed_metadata, exif_offset.?);
+    }
+    const maker_size = tiffz.ifd.Ifd.entryValueBytes(maker_entry.*);
+    if (maker_size <= offset_width.inlineCap() or maker_size > std.math.maxInt(usize)) {
+        return .{ .structural = .unsupported_metadata_layout };
+    }
+    const maker_host_offset = entryOffset(maker_entry.*, header.endian, offset_width);
+    const maker_bytes = exif.cachedValueBytes(maker_note_tag) orelse
+        return metadataLocateFailure(.metadata_out_of_bounds, maker_host_offset);
+    if (maker_bytes.len < 18 or !std.mem.eql(u8, maker_bytes[0..6], "Nikon\x00")) {
+        return .{ .structural = .unsupported_metadata_layout };
+    }
+
+    const embedded_base: u64 = 10;
+    const embedded_host_base = std.math.add(u64, maker_host_offset, embedded_base) catch
+        return metadataLocateFailure(.metadata_out_of_bounds, maker_host_offset);
+    var embedded_handle = tiffz.source.BufferHandle.init(maker_bytes[embedded_base..]);
+    const embedded_source = tiffz.Source.fromBuffer(&embedded_handle);
+    const embedded_header = tiffz.header.parse(embedded_source) catch
+        return metadataLocateFailure(.malformed_metadata, embedded_host_base);
+    if (embedded_header.bigtiff) return .{ .structural = .unsupported_metadata_layout };
+    var maker_ifd = tiffz.ifd.parse(
+        allocator,
+        embedded_source,
+        embedded_header.endian,
+        embedded_header.ifd0_offset,
+        limits,
+        .classic,
+    ) catch |err| switch (err) {
+        error.OutOfMemory => return error.OutOfMemory,
+        else => return metadataLocateFailure(.malformed_metadata, embedded_host_base),
+    };
+    defer maker_ifd.deinit();
+
+    const table_entry = maker_ifd.get(nef_linearization_table_tag) orelse
+        return .{ .structural = .huffman_table_unavailable };
+    if (table_entry.field_type != .undefined and table_entry.field_type != .byte) {
+        return metadataLocateFailure(.malformed_metadata, embedded_host_base);
+    }
+    const table_size = tiffz.ifd.Ifd.entryValueBytes(table_entry.*);
+    if (table_size <= maker_ifd.offset_width.inlineCap()) {
+        return .{ .structural = .unsupported_metadata_layout };
+    }
+    const table_relative_offset = entryOffset(
+        table_entry.*,
+        embedded_header.endian,
+        maker_ifd.offset_width,
+    );
+    const table_end = std.math.add(u64, table_relative_offset, table_size) catch
+        return metadataLocateFailure(.metadata_out_of_bounds, embedded_host_base);
+    if (table_end > maker_bytes.len - embedded_base) {
+        return metadataLocateFailure(.metadata_out_of_bounds, embedded_host_base);
+    }
+    const host_offset = std.math.add(
+        u64,
+        embedded_host_base,
+        table_relative_offset,
+    ) catch return metadataLocateFailure(.metadata_out_of_bounds, maker_host_offset);
+    return .{ .metadata = .{
+        .host_offset = host_offset,
+        .byte_count = table_size,
+        .byte_order = switch (header.endian) {
+            .little => .little,
+            .big => .big,
+        },
+    } };
+}
+
+fn entryOffset(
+    entry: tiffz.ifd.Entry,
+    endian: tiffz.header.Endian,
+    offset_width: tiffz.ifd.OffsetWidth,
+) u64 {
+    return switch (offset_width) {
+        .classic => tiffz.header.readU32(entry.raw_value_or_offset[0..4], endian),
+        .big => tiffz.header.readU64(&entry.raw_value_or_offset, endian),
+    };
+}
+
+fn metadataLocateFailure(
+    code: sensor_validation.ErrorCode,
+    byte_offset: u64,
+) MetadataLocateResult {
+    return .{ .fail = .{
+        .code = code,
+        .region = .metadata,
+        .byte_offset = byte_offset,
+    } };
+}
 
 /// Locate the CFA sensor SubIFD and collapse its strips only when they form one
 /// exact contiguous range. Returned offsets are relative to the complete NEF.
@@ -249,6 +399,31 @@ test "locates a big-endian uncompressed Nikon CFA SubIFD" {
             .byte_order = .big,
         } },
         try locateSensorPayload(std.testing.allocator, nef),
+    );
+}
+
+test "locates Nikon Huffman metadata through Exif and the embedded MakerNote TIFF" {
+    const nef = "MM\x00\x2a\x00\x00\x00\x08" ++
+        "\x00\x01" ++
+        "\x87\x69\x00\x04\x00\x00\x00\x01\x00\x00\x00\x1a" ++
+        "\x00\x00\x00\x00" ++
+        "\x00\x01" ++
+        "\x92\x7c\x00\x07\x00\x00\x00\x30\x00\x00\x00\x2c" ++
+        "\x00\x00\x00\x00" ++
+        "Nikon\x00\x02\x00\x00\x00" ++
+        "II\x2a\x00\x08\x00\x00\x00" ++
+        "\x01\x00" ++
+        "\x96\x00\x07\x00\x0c\x00\x00\x00\x1a\x00\x00\x00" ++
+        "\x00\x00\x00\x00" ++
+        "\x46\x30\x02\x00\x02\x00\x02\x00\x02\x00\x00\x00";
+
+    try std.testing.expectEqual(
+        MetadataLocateResult{ .metadata = .{
+            .host_offset = 80,
+            .byte_count = 12,
+            .byte_order = .big,
+        } },
+        try locateHuffmanMetadata(std.testing.allocator, nef),
     );
 }
 

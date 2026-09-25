@@ -17,6 +17,7 @@ pub const classification = @import("classification.zig");
 pub const capabilities = @import("capabilities.zig");
 pub const cr2_sensor = @import("cr2_sensor.zig");
 pub const nef_sensor = @import("nef_sensor.zig");
+pub const nikon_huffman = @import("nikon_huffman.zig");
 pub const pef_decoder = @import("pef_decoder.zig");
 pub const sensor_validation = @import("sensor_validation.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
