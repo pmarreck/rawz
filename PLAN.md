@@ -8,6 +8,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
+    - [x] Ratify and deliver `Maximum Known Technically Possible` (`MKTP`) as the variant-scoped depth label for complete best-effort parsing whose remaining corruption blind spots are fundamental to the format (done 2026-09-26 15:15 EDT; durable Validate policy note delivered).
     - [x] Update Validate's coverage notes with each newly measured RAW corruption-detection gain, preserving independent-control provenance and structural/full caveats (done 2026-09-25 15:37 EDT; Validate `3dc478a2d`).
     - [x] Ship PEF syntax validation first: compression-aware 32773/65535 dispatch, bounded AOC MakerNote lookup, stable depth results with offsets, real 97/100 random-byte and 100/100 EOF coverage, exact-SHA Validate handoff, and terminal Mechatron pass (done 2026-09-24 20:10 EDT; `ef74184`).
     - [ ] Ship DNG/CR2/compressed-NEF sensor syntax validation and independent per-variant coverage.
@@ -26,7 +27,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
     - [x] Add a blocking production-closure check over the parser import graph, exact compiler command, shipped ELF, and Nix store references. Curiosity poke: dynamic-section inspection alone misses static or debug-path Nix references.
     - [x] Preserve the published capability matrix and bounded PEF scorecard, changing only the now-proven closure status and evidence.
     - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).
-  - [x] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in 3 seconds (2026-08-05 00:29 EDT).
 
 ## Next
 
