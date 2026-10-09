@@ -51,3 +51,11 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
 ## Retired 2026-09-26
 
 - [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Passed canonical local, exact Nix, pushed-commit, and terminal Mechatron gates for `4940ab487bc9fb9930f026e9349d44ec056d5a7a`; Mechatron reported success in 3 seconds (2026-08-05 00:29 EDT).
+
+## Retired 2026-10-08
+
+- [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT…] Adopt tiffz's parser-only module and prove the requested first-party-only production closure (2026-08-05 01:40 EDT).
+  - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a` and inject its `tiffz-parser` module exactly once. Curiosity poke: remove every obsolete zlib workaround rather than hiding a stale link edge.
+  - [x] Add a blocking production-closure check over the parser import graph, exact compiler command, shipped ELF, and Nix store references. Curiosity poke: dynamic-section inspection alone misses static or debug-path Nix references.
+  - [x] Preserve the published capability matrix and bounded PEF scorecard, changing only the now-proven closure status and evidence.
+  - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).

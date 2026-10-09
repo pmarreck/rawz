@@ -6,6 +6,9 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [x] Update rawz to current tiffz and flake inputs; package heads were already current, nixpkgs advanced to `34ca302a`, the resolved graph and all gates passed, and Mechatron passed `f793ce6` in 54 seconds (done 2026-09-24 17:03 EDT; commits `662fca3`, `f793ce6`).
 
+- [x] Refresh every direct, transitive, and toolchain dependency pin to its upstream head, including tiffz `4e6d9c31`, nixpkgs `39ad350a`, flake-utils `11707dc2`, nix-systems `d36eeed1`, and Zig 0.16.0; regenerated hashes and the full local gate set pass (done 2026-10-08 21:33 EDT).
+- [ ] Audit active mutation labels and migrate legacy dense `shotgun` usage to `nuke` without rewriting historical evidence.
+
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
     - [x] Ratify and deliver `Maximum Known Technically Possible` (`MKTP`) as the variant-scoped depth label for complete best-effort parsing whose remaining corruption blind spots are fundamental to the format (done 2026-09-26 15:15 EDT; durable Validate policy note delivered).
@@ -22,11 +25,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
     - [x] Keep every uncompressed-word path structural under Peter's 10% any-legal-byte ceiling, including streams with valid black/white levels (done 2026-09-24 20:52 EDT).
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
-  - [x] Adopt tiffz's parser-only module and prove the requested first-party-only production closure (2026-08-05 01:40 EDT).
-    - [x] Repin exact terminal-green tiffz `c57166db87132742c7591c34161c5549133bd09a` and inject its `tiffz-parser` module exactly once. Curiosity poke: remove every obsolete zlib workaround rather than hiding a stale link edge.
-    - [x] Add a blocking production-closure check over the parser import graph, exact compiler command, shipped ELF, and Nix store references. Curiosity poke: dynamic-section inspection alone misses static or debug-path Nix references.
-    - [x] Preserve the published capability matrix and bounded PEF scorecard, changing only the now-proven closure status and evidence.
-    - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).
 
 ## Next
 
