@@ -411,6 +411,17 @@ pub fn validatePefPayload(input: PayloadInput) sensor_validation.Result {
             .encoded => |encoded| {
                 const table = input.huffman_table orelse
                     return .{ .structural = .huffman_table_unavailable };
+                // The result API separates validator reach from file evidence.
+                // The low-level error API below retains its append-only ABI.
+                if (input.width != 0 and input.height != 0 and
+                    input.bits_per_sample != 0 and input.bits_per_sample <= 16 and
+                    table.len >= 2)
+                {
+                    const total_pixels = @as(u64, input.width) * @as(u64, input.height);
+                    if (total_pixels > input.limits.max_pixels) {
+                        return .{ .structural = .work_limit_exceeded };
+                    }
+                }
                 if (validatePefHuffmanDetailed(
                     encoded,
                     input.width,
@@ -774,6 +785,69 @@ test "Huffman validation enforces caller-selected work limits" {
         PefDecodeError.WorkLimitExceeded,
         validatePefHuffmanWithLimits(&.{0}, 2, 1, 12, &table, .{ .max_pixels = 1 }).?,
     );
+}
+
+test "PEF payload classifies malformed dimensions and legal work budgets over a set" {
+    var table = [_]u8{0} ** 17;
+    table[0] = 5;
+    table[16] = 1;
+
+    const cases = [_]struct {
+        name: []const u8,
+        input: PayloadInput,
+        expected: sensor_validation.Result,
+    }{
+        .{
+            .name = "malformed zero-width metadata",
+            .input = .{
+                .compression = compression_pentax_huffman,
+                .payload = .{ .encoded = &.{0} },
+                .width = 0,
+                .height = 1,
+                .bits_per_sample = 12,
+                .huffman_table = &table,
+                .limits = .{ .max_pixels = 0 },
+            },
+            .expected = .{ .fail = .{
+                .code = .invalid_dimensions,
+                .region = .metadata,
+                .byte_offset = 0,
+            } },
+        },
+        .{
+            .name = "legal stream at the pixel budget",
+            .input = .{
+                .compression = compression_pentax_huffman,
+                .payload = .{ .encoded = &.{0} },
+                .width = 1,
+                .height = 1,
+                .bits_per_sample = 12,
+                .huffman_table = &table,
+                .limits = .{ .max_pixels = 1 },
+            },
+            .expected = .{ .full = {} },
+        },
+        .{
+            .name = "same legal stream beyond the pixel budget",
+            .input = .{
+                .compression = compression_pentax_huffman,
+                .payload = .{ .encoded = &.{0} },
+                .width = 1,
+                .height = 1,
+                .bits_per_sample = 12,
+                .huffman_table = &table,
+                .limits = .{ .max_pixels = 0 },
+            },
+            .expected = .{ .structural = .work_limit_exceeded },
+        },
+    };
+
+    for (cases) |case| {
+        std.testing.expectEqual(case.expected, validatePefPayload(case.input)) catch |err| {
+            std.debug.print("classification case failed: {s}\n", .{case.name});
+            return err;
+        };
+    }
 }
 
 test "bounded PEF v1 corpus and sniper bolter shotgun mutations have fixed scores" {

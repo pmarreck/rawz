@@ -54,8 +54,10 @@ The classification API returns no findings, so it makes no offset claim beyond
 the tested bounded view. Sensor validators return
 `sensor_validation.Result`: `full`, `structural` plus an append-only reach
 reason, or `fail` plus an append-only error code, byte region, and byte offset.
-An explicit sample-work budget is a validator reach: Nikon 0x46 returns
-`structural(work_limit_exceeded)` without accusing the file of corruption.
+An explicit sample-work budget is a validator reach: PEF private Huffman and
+Nikon 0x46 return `structural(work_limit_exceeded)` without accusing the file
+of corruption. PEF's legacy low-level error API retains its append-only
+`WorkLimitExceeded` value; consumers that classify evidence use the result API.
 For PEF, `.payload` offsets are relative to the supplied strip and `.metadata`
 offsets are relative to the supplied Huffman-table bytes. Validate adds the
 checked host base of the corresponding range.

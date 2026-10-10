@@ -69,10 +69,27 @@ The fixture hashes and historical commands are indexed from `docs/coverage-evide
 - Package output: `/nix/store/dr3s1ixmv3qswcrisa70r0wq5kc8w248-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`.
 - These gates prove delivery of the classifier correction and current capability declaration. They do not constitute a new mutation campaign, an analytical ceiling, or Validate adoption.
 
+### 2026-10-10 00:56 EDT: PEF sample-work reach red and focused green
+
+- Source base: rawz `9956f587a69313741723518de63fdd717907077c`.
+- Red command: `build-budget --project rawz -- nix develop -c zig build test`.
+- Red build-budget unit: `build-rawz-9b60799b-9218-4d20-b419-0657157e6ca7.scope`; exit code 1, with 60/61 tests passing.
+- Red result: the same valid one-pixel PEF stream returned `fail(work_limit_exceeded)` under `max_pixels = 0`; malformed dimensions and the stream at `max_pixels = 1` were successful controls.
+- Minimal implementation: the evidence-classification result layer maps the PEF pixel-work ceiling to `structural(work_limit_exceeded)`. The low-level `validatePefHuffmanWithLimits` API retains `PefDecodeError.WorkLimitExceeded` for append-only compatibility.
+- Green command: `build-budget --project rawz -- nix develop -c zig build test`.
+- Green build-budget unit: `build-rawz-23cd736d-dc48-4c26-bde6-5851402bf0d9.scope`; exit code 0, with 61/61 tests passing.
+- Complete test command: `build-budget --project rawz -- nix develop -c ./test`.
+- Complete test build-budget unit: `build-rawz-a2ada3e7-f40e-4846-a41c-c5c3764c008a.scope`; exit code 0. The staged `src/pef_decoder.zig` diff SHA-256 was `b19410ff51a67e5ee7673f49cb2a151d0b7d850e3e5f2d6a0b636bf237e0edc4`.
+- Complete build command: `build-budget --project rawz -- nix develop -c ./build`.
+- Complete build build-budget unit: `build-rawz-2b842065-0c42-417c-8b40-93cbee461ce9.scope`; exit code 0.
+- Package output: `/nix/store/nnbs0d2hz85d42saw2mpq1w9qi5xjkfv-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`. Both packaged hashes are unchanged from M1; this source/test API correction does not produce a different current C artifact.
+- A read-only consumer check found that Validate already maps PEF `work_limit_exceeded` reach to a structural result. No adapter or dependency-pin change is required.
+- Scope: deterministic synthetic controls only. No real fixture, external decoder or mutation score was rerun.
+
 ## Residuals and known gaps
 
 - PEF and Nikon entropy survivors remain unexplained until each is classified against a demonstrated format rule. The measured survivors are not an analytical any-value census.
-- PEF private Huffman has no analytical ceiling, no current-binary replay and no input for metadata black/white bounds. Its sample-work limit still returns `FAIL work_limit_exceeded`; that separate verdict/reach boundary remains open.
+- PEF private Huffman has no analytical ceiling, no current-binary replay and no input for metadata black/white bounds. Its result API now classifies the sample-work limit as reach; its intentionally retained low-level error value is not a corruption verdict.
 - Nikon 0x46 has no validated rule for final-byte padding, no analytical ceiling, and no real 14-bit scorecard. Lossy tables, split-row tables, packed data and other metadata versions remain unsupported.
 - Nikon's CFA-IFD locator still returns `FAIL work_limit_exceeded` when its IFD traversal budget is exhausted. The correct reach classification for that container-level budget remains open.
 - Uncompressed-word measurements cover one 14-bit Nikon layout. Packed samples, row padding, noncontiguous strips and variants with usable level metadata require separate rows.
@@ -81,6 +98,6 @@ The fixture hashes and historical commands are indexed from `docs/coverage-evide
 
 ## Bounded next action
 
-Correct Nikon 0x46's sample-work ceiling from a corruption failure to a named structural reach. Prove the classifier over a set containing malformed dimensions, a legal at-limit stream and a legal over-budget stream. Do not add a final-padding rejection without a source or control that distinguishes forbidden padding from ignored bits.
+Correct Nikon's CFA-IFD traversal budget from a corruption failure to a named structural reach. Prove the classifier with a malformed offset or actual cycle, a valid at-limit traversal, and the same valid input under a lower injected budget. Keep controls finite and allocation-small.
 
 After the focused change, run the complete local test/build entry point through `build-budget`, record the exact source and binary hashes, publish the commit, obtain exact Mechatron evidence, and send the coordinator a delivery receipt. Validate adoption remains a separate consumer action.
