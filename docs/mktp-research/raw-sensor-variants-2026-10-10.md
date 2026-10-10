@@ -122,6 +122,24 @@ The fixture hashes and historical commands are indexed from `docs/coverage-evide
 - Package output: `/nix/store/am55mfxw1pn7fwvlrxwqb5mra8dbfivx-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`. The packaged hashes remain unchanged, consistent with the identical imported parser sources.
 - Scope: dependency identity and package-cache closure only. No JPEG pin, vendor decoder, corpus, toolchain or MKTP assessment changed.
 
+### 2026-10-10 02:48 EDT: separate TIFFZ boundary-control forward pin
+
+- Source base: published rawz `0f982f5be0107122920b85a7bbda78b12724ee95`; the complete TIFFZ-618 evidence above remains attached only to that source.
+- Dependency: TIFFZ moved separately from `618d38d403764fbe29692ec211d2d4b45e748e6d` to published `abc2beb2aaaa93f46990a332d85cfa6fd85ffdb6`.
+- Owner-supplied Zig package identity: `tiffz-0.1.0-qutJAY8I0QHEcRu8-jNoUM7yDnVBfAIpKHp3CA6tQYtT`.
+- Imported-parser control: `src/parser.zig`, `src/limits.zig`, `src/ifd.zig` and `src/errors.zig` again have no diff between these TIFFZ commits. The upstream delta adds decoder boundary controls, CLI tests and evidence prose outside rawz's parser-only import graph.
+- Fixed-output discovery command: `build-budget --project rawz -- nix build .#default` with `pkgs.lib.fakeHash`.
+- Discovery build-budget unit: `build-rawz-9f155e88-b20d-4ce5-b437-a3ac74d7b68f.scope`; expected exit code 1; reported `zigDepsHash` `sha256-mey3a8hrpUyKkwTnwq6yCp7qc1M9WrIhnTZmjXDBHUg=`.
+- Exact-hash package command: `build-budget --project rawz -- nix build .#default`.
+- Exact-hash build-budget unit: `build-rawz-81bd2b3b-2dec-4d1f-89c7-3f43f0a4c57b.scope`; exit code 0.
+- Complete test command: `build-budget --project rawz -- nix develop -c ./test`.
+- Complete test build-budget unit: `build-rawz-de8f2abc-1ff0-41da-9afc-c035a3531e51.scope`; exit code 0.
+- Complete optimized build command: `build-budget --project rawz -- nix develop -c ./build`.
+- Complete optimized build-budget unit: `build-rawz-d869cf4e-136b-458a-a120-af131c6959f5.scope`; exit code 0.
+- Pin/configuration diff SHA-256 across `build.zig.zon`, `flake.nix`, `src/CAPABILITIES.json`, `src/capabilities.zig` and `docs/validate_integration.md`: `c8fe84aafd1beaf0b0a6c48b8403becfe28e4876a01353f6b69136ae19a3549f`.
+- Package output: `/nix/store/z2zhkcpwr6vq0x5yq4qcwszvj7idx4l0-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`. The packaged hashes remain unchanged, consistent with the identical imported parser sources.
+- Scope: a separately gated dependency identity and package-cache update. No prior gate is relabeled, and no corpus, JPEG/provider route, vendor decoder, toolchain or MKTP assessment changed.
+
 ## Residuals and known gaps
 
 - PEF and Nikon entropy survivors remain unexplained until each is classified against a demonstrated format rule. The measured survivors are not an analytical any-value census.

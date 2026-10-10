@@ -34,7 +34,7 @@
 
         # Fixed-output derivation for the Zig dependency graph rooted at tiffz.
         # To regenerate: set to pkgs.lib.fakeHash, `nix build`, use printed hash.
-        zigDepsHash = "sha256-1m7yJq4Ae+cHT7leenXx1HOjS1jZS4gEvfJKfpCkKL0=";
+        zigDepsHash = "sha256-mey3a8hrpUyKkwTnwq6yCp7qc1M9WrIhnTZmjXDBHUg=";
         zigDeps = pkgs.stdenv.mkDerivation {
           pname = "${pname}-zig-deps";
           inherit version;
