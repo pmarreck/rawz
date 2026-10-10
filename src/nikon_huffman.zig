@@ -106,7 +106,7 @@ pub fn validate(input: Input) sensor_validation.Result {
     if (consumed_bytes != input.payload.len) {
         return payloadFailure(.trailing_mismatch, consumed_bytes);
     }
-    return .{ .full = {} };
+    return .{ .structural = .analytical_ceiling_unestablished };
 }
 
 fn buildLookup(table: Table) [256]LookupEntry {
@@ -190,7 +190,54 @@ test "accepts an exact 12-bit lossless stream with zero differences" {
         .linearization_table = &metadata,
         .metadata_byte_order = .little,
     });
-    try std.testing.expectEqual(sensor_validation.Result{ .full = {} }, result);
+    try std.testing.expectEqual(
+        sensor_validation.Result{ .structural = .analytical_ceiling_unestablished },
+        result,
+    );
+}
+
+test "lossless syntax success stays structural until its analytical ceiling is established" {
+    const metadata = [_]u8{
+        0x46, 0x30,
+        0x02, 0x00,
+        0x02, 0x00,
+        0x02, 0x00,
+        0x02, 0x00,
+        0x00, 0x00,
+    };
+    const legal_original = [_]u8{0xf8};
+
+    const accepted = validate(.{
+        .payload = &legal_original,
+        .width = 1,
+        .height = 1,
+        .bits_per_sample = 14,
+        .linearization_table = &metadata,
+        .metadata_byte_order = .big,
+    });
+    switch (accepted) {
+        .structural => |reason| try std.testing.expectEqual(
+            sensor_validation.ReachReason.analytical_ceiling_unestablished,
+            reason,
+        ),
+        else => return error.TestExpectedStructuralReach,
+    }
+
+    try std.testing.expectEqual(
+        sensor_validation.Result{ .fail = .{
+            .code = .truncated,
+            .region = .payload,
+            .byte_offset = 0,
+        } },
+        validate(.{
+            .payload = legal_original[0..0],
+            .width = 1,
+            .height = 1,
+            .bits_per_sample = 14,
+            .linearization_table = &metadata,
+            .metadata_byte_order = .big,
+        }),
+    );
 }
 
 test "classifies malformed dimensions and legal sample budgets over a set" {
@@ -236,7 +283,7 @@ test "classifies malformed dimensions and legal sample budgets over a set" {
                 .metadata_byte_order = .big,
                 .limits = .{ .max_samples = 1 },
             },
-            .expected = .{ .full = {} },
+            .expected = .{ .structural = .analytical_ceiling_unestablished },
         },
         .{
             .name = "legal stream beyond the sample budget",
@@ -345,7 +392,7 @@ test "accepts the 14-bit lossless table and parent big-endian predictors" {
     };
 
     try std.testing.expectEqual(
-        sensor_validation.Result{ .full = {} },
+        sensor_validation.Result{ .structural = .analytical_ceiling_unestablished },
         validate(.{
             .payload = &.{0xf8},
             .width = 1,

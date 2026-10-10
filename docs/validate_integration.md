@@ -105,8 +105,10 @@ offset.
 
 rawz does not import jpegz. Validate passes the returned slice to its single
 `tiffz.jpegz` instance and adds the returned host base to any jpegz finding
-offset. The CC0 EOS 20D control proves the locator but currently reaches jpegz
-`unsupported` because its SOF3 stream uses two components with non-1x1 sampling.
+offset. The CC0 EOS 20D control proves the locator. Its SOF3 stream has two
+12-bit components with 1x1 sampling. JPEGZ `6ef766c` validates that exact stream
+through EOI and is an ancestor of TIFFZ's published `33ea394` JPEGZ pin. Validate
+still needs to wire this handoff and record its own current real-file scorecard.
 
 ## Uncompressed word handoff
 
@@ -141,4 +143,8 @@ dimensions, bit depth, metadata slice, and metadata byte order to
 lossless Huffman pass through the final declared sample. Predictor escape,
 truncation, trailing bytes, malformed metadata, and work-limit failures return
 stable codes and payload- or metadata-relative offsets. Other Nikon table
-versions return `structural(unsupported_metadata_layout)`.
+versions return `structural(unsupported_metadata_layout)`. A successful
+version-`0x46` pass returns
+`structural(analytical_ceiling_unestablished)`, reach code 8, because the
+known syntax checks do not yet establish an analytical detection ceiling.
+Validate must map that append-only reason explicitly when it updates rawz.

@@ -235,10 +235,10 @@ all `oracle-only`. Legality flags in §5.
 
 | Format | Container | Payload | Structural ceiling | Deep ceiling | First-party **now** | 3P delta (oracle) | Flag |
 |---|---|---|---|---|---|---|---|
-| **DNG** | `tiff` | `open-raw`/`open-ljpeg`/`open-jxl` | `structural` first-party (tiffz) | **`deep` first-party, no RE** (jpegz ljpeg + libjxlz JXL) | `partial` (tiffz structure; payload not fully checked) | full decode | **open** — flagship |
-| **CR2** | `tiff` | `open-ljpeg` | `structural` first-party | **`deep` first-party, no RE** (jpegz lossless JPEG) | `unsupported` (structure via tiffz; payload not wired) | full decode | **open** |
-| **PEF** | `tiff` | `re-packed`/`re-entropy` | `structural` first-party | `deep` first-party (RE; in progress) | `partial` (bounded packed-12 + sparse Huffman slice) | full decode | RE |
-| **NEF / NRW** | `tiff` | `re-entropy`/`open-raw` | `structural` first-party | `deep` first-party (RE) | `unsupported` (semantic classification only) | full decode | RE + Nikon WB-encryption caveat |
+| **DNG** | `tiff` | `open-raw`/`open-ljpeg`/`open-jxl` | `structural` first-party (tiffz) | **`deep` first-party, no RE** (jpegz ljpeg + libjxlz JXL) | `partial` (synthetic CFA Compression 7 delivered; real camera-DNG scorecard open) | full decode | **open** — flagship |
+| **CR2** | `tiff` | `open-ljpeg` | `structural` first-party | **`deep` first-party, no RE** (jpegz lossless JPEG) | `partial` (exact locator and EOS 20D provider support delivered; Validate wiring and scorecard open) | full decode | **open** |
+| **PEF** | `tiff` | `re-packed`/`re-entropy` | `structural` first-party | `deep` first-party (RE; in progress) | `partial` (real 12-bit private-Huffman row; PackBits sample values remain structural) | full decode | RE |
+| **NEF / NRW** | `tiff` | `re-entropy`/`open-raw` | `structural` first-party | `deep` first-party (RE) | `partial` (real 12- and 14-bit version-0x46 Huffman rows, plus uncompressed-word headroom checks; no Huffman analytical ceiling) | full decode | RE + Nikon WB-encryption caveat |
 | **ARW / SR2 / SRF** | `tiff` | `re-entropy` | `structural` first-party | `deep` first-party (RE) | `unsupported` | full decode | RE |
 | **ORF / ORI** | `tiff` | `re-entropy` | `structural` first-party | `deep` first-party (RE) | `unsupported` | full decode | RE + "uncompressed" tag lies (Olympus Huffman) |
 | **RW2 / RAW** | `tiff` | `re-entropy` | `structural` first-party | `deep` first-party (RE) | `unsupported` | full decode | RE |

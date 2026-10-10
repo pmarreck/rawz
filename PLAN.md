@@ -4,6 +4,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
+- [x] Reconcile the exact-variant RAW plan against published Canon/DNG/Nikon evidence, then correct the Nikon D300 14-bit lossless-compressed version-0x46 claim red-first with the exact CC0 original, a truncated malformed control, and independently attributable corpus evidence (done 2026-10-10 13:36 EDT).
 
 - [x] Refresh every direct, transitive, and toolchain dependency pin to its upstream head, including tiffz `4e6d9c31`, nixpkgs `39ad350a`, flake-utils `11707dc2`, nix-systems `d36eeed1`, and Zig 0.16.0; regenerated hashes and the full local gate set pass (done 2026-10-08 21:33 EDT).
 - [ ] Audit active mutation labels and migrate legacy dense `shotgun` usage to `nuke` without rewriting historical evidence.
@@ -16,13 +17,12 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 	- [x] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).
 	- [x] Forward-pin TIFFZ separately from accepted `618d38d` evidence to published `abc2beb2`, regenerate its dependency hash, and run complete local gates before publication (done 2026-10-10 02:49 EDT; `49d35c9`, Mechatron Prime PASS in 43s).
     - [x] Ratify and deliver `Maximum Known Technically Possible` (`MKTP`) as the variant-scoped depth label for complete best-effort parsing whose remaining corruption blind spots are fundamental to the format (done 2026-09-26 15:15 EDT; durable Validate policy note delivered).
-    - [x] Update Validate's coverage notes with each newly measured RAW corruption-detection gain, preserving independent-control provenance and structural/full caveats (done 2026-09-25 15:37 EDT; Validate `3dc478a2d`).
     - [ ] Ship DNG/CR2/compressed-NEF sensor syntax validation and independent per-variant coverage.
-      - [ ] Integrate DNG CFA compression 7 after tiffz delivers its jpegz-owned path.
-      - [ ] Integrate CR2 after jpegz delivers Canon's two-component subsampled SOF3 path and tiffz repins it.
-      - [ ] Implement Nikon Huffman for compressed NEF; the ratified matrix identifies this as proprietary entropy coding, not the DNG/CR2 lossless-JPEG seam.
-        - [x] Ship Nikon version-0x46 lossless Huffman validation with bounded MakerNote table lookup, a real D300 baseline, 69/100 byte and 100/100 EOF detection, and a 100-mutation rawspeed differential run (done 2026-09-24 21:30 EDT).
-    - [x] Keep every uncompressed-word path structural under Peter's 10% any-legal-byte ceiling, including streams with valid black/white levels (done 2026-09-24 20:52 EDT).
+      - [x] Keep DNG CFA Compression 7 in TIFFZ: the synthetic single-component JPEGZ path shipped in TIFFZ `b38c2f47` and is present in the full TIFFZ `abc2beb2` commit that also supplies rawz's parser-only pin; a real camera-DNG scorecard remains consumer evidence, not a rawz implementation (reconciled 2026-10-10 13:05 EDT).
+      - [x] Recover the Canon provider seam without bypassing the provider hold: JPEGZ `6ef766c` validates the EOS 20D two-component 12-bit SOF3 stream through EOI, both components use 1x1 sampling, and TIFFZ `abc2beb2` contains the repin; rawz's exact-range locator was already delivered (reconciled 2026-10-10 13:05 EDT).
+        - [ ] Have Validate wire the located EOS 20D range through its existing single JPEGZ instance, preserve host offsets, and record the current real-file scorecard.
+      - [ ] Complete Nikon Huffman evidence and result classification by exact compressed-NEF variant; this is proprietary entropy coding, separate from the DNG/CR2 lossless-JPEG seam.
+        - [x] Correct successful version-0x46 syntax passes to structural until their analytical ceiling is established; qualify the real CC0 D300 14-bit lossless-compressed control separately from the delivered 12-bit row (done 2026-10-10 13:36 EDT).
     - [ ] Ship Sony ARW, Fuji RAF, Olympus ORF, and Panasonic RW2 entropy syntax checks with per-variant coverage.
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
 

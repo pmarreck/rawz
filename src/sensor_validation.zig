@@ -40,6 +40,7 @@ pub const ReachReason = enum(u16) {
     unsupported_metadata_layout = 5,
     metadata_levels_unavailable = 6,
     work_limit_exceeded = 7,
+    analytical_ceiling_unestablished = 8,
 };
 
 /// A direct mapping surface for Validate: full, structural, or fail.
@@ -62,4 +63,5 @@ test "sensor result codes use stable explicit 16-bit values" {
     try std.testing.expectEqual(@as(u16, 5), @intFromEnum(ReachReason.unsupported_metadata_layout));
     try std.testing.expectEqual(@as(u16, 6), @intFromEnum(ReachReason.metadata_levels_unavailable));
     try std.testing.expectEqual(@as(u16, 7), @intFromEnum(ReachReason.work_limit_exceeded));
+    try std.testing.expectEqual(@as(u16, 8), @intFromEnum(ReachReason.analytical_ceiling_unestablished));
 }

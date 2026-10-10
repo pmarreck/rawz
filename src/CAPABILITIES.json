@@ -66,7 +66,7 @@
     "nikon_huffman_lossless_12bit": {
       "scope": "Nikon compression 34713 with a version-0x46 lossless table, bounded MakerNote table lookup, strict syntax-to-end validation, predictor bounds, and stable offsets",
       "real_fixture_sha256": "7e6d38ddebe82784dc8c84cdf02dce7bcfe74b71b0dec91b28551936102c39b9",
-      "baseline_result": "full",
+      "baseline_result": "structural:analytical_ceiling_unestablished",
       "different_byte_detected": 69,
       "different_byte_total": 100,
       "eof_detected": 100,
@@ -74,7 +74,21 @@
       "rawspeed_rejected_rawz_passed": 0,
       "rawspeed_mutations_total": 100,
       "mktp_assessment": "structural: the historical scorecard lacks an analytical ceiling, a demonstrated format-level residual class, and a current-binary independent replay",
-      "qualification": "The real-file measurement covers one CC0 Nikon D300 12-bit lossless-compressed NEF. darktable 5.6.0/rawspeed decoded the baseline and all 100 deterministic byte mutations; rawz rejected 69. Version-0x46 14-bit support has synthetic coverage only, and other Nikon table versions remain structural."
+      "qualification": "The historical real-file measurement covers one CC0 Nikon D300 12-bit lossless-compressed NEF. darktable 5.6.0/rawspeed decoded the baseline and all 100 deterministic byte mutations; rawz rejected 69. Successful syntax-to-end validation remains structural because no analytical ceiling or demonstrated format-level residual establishes MKTP."
+    },
+    "nikon_huffman_lossless_14bit": {
+      "scope": "Nikon compression 34713 with a version-0x46 14-bit lossless table, bounded MakerNote table lookup, strict syntax-to-end validation, predictor bounds, and stable offsets",
+      "real_fixture_sha256": "8b989f53c96995f7014ddd16124530cf6d8f3341ea9570d6312d9da1eb0a117a",
+      "baseline_result": "structural:analytical_ceiling_unestablished",
+      "known_good": 1,
+      "false_positives": 0,
+      "truncated_controls": 1,
+      "truncated_controls_detected": 1,
+      "rawspeed_baseline_accepted": true,
+      "rawspeed_identity": "darktable 5.6.0/rawspeed black-box decode",
+      "rawspeed_binary_sha256": "763c9b14ab75e4e326098b8fd8cfef5e648b614d2fc1ee302dcdee1498c4883f",
+      "mktp_assessment": "structural: exact syntax-to-end and one malformed control are established, but no analytical ceiling, demonstrated format-level residual class, or mutation scorecard exists",
+      "qualification": "The exact real-file row covers one CC0 Nikon D300 14-bit lossless-compressed NEF and one deterministic one-byte EOF control. It is pristine/control evidence, not a broad corruption-detection campaign."
     }
   },
   "families": [
@@ -84,7 +98,7 @@
       "container": "TIFF/EP",
       "classification_state": "partial",
       "validation_state": "partial",
-      "evidence": "DNGVersion and TIFF structure are checked through tiffz; full lossless-JPEG sensor payload coverage is not established"
+      "evidence": "DNGVersion and TIFF structure are checked through tiffz; TIFFZ b38c2f47 delivered synthetic CFA Compression 7 validation through its single JPEGZ provider, while a real 12/14-bit camera-DNG scorecard and consumer promotion remain open"
     },
     {
       "id": "pef",
@@ -100,7 +114,7 @@
       "container": "TIFF plus Canon private data",
       "classification_state": "partial",
       "validation_state": "unsupported",
-      "evidence": "the proprietary CR2 raw-IFD pointer and bounded single-strip lossless-JPEG payload are located with exact host offsets; a CC0 EOS 20D stream is blocked because jpegz does not yet support Canon's two-component subsampled SOF3 layout"
+      "evidence": "the proprietary CR2 raw-IFD pointer and bounded single-strip lossless-JPEG payload are located with exact host offsets; JPEGZ 6ef766c validates the CC0 EOS 20D two-component 1x1-sampled SOF3 stream through EOI, but Validate has not yet wired the located range or recorded a current scorecard"
     },
     {
       "id": "nef-nrw",
@@ -108,7 +122,7 @@
       "container": "TIFF plus Nikon private data",
       "classification_state": "partial",
       "validation_state": "partial",
-      "evidence": "the NEF CFA SubIFD locator combines only contiguous strips and identifies uncompressed words versus Nikon compression 34713; uncompressed words remain structural under the 10% any-legal-byte ceiling; Nikon version-0x46 12/14-bit lossless Huffman syntax is checked through the declared final sample, with a real D300 12-bit scorecard and other table versions kept structural"
+      "evidence": "the NEF CFA SubIFD locator combines only contiguous strips and identifies uncompressed words versus Nikon compression 34713; uncompressed words remain structural under the 10% any-legal-byte ceiling; Nikon version-0x46 12/14-bit lossless Huffman syntax is checked through the declared final sample, with exact real D300 scorecards for both depths and successful syntax passes kept structural until an analytical ceiling is established"
     },
     {
       "id": "arw-sr2-srf",

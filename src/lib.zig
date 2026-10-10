@@ -204,3 +204,77 @@ test "PEF decoder is available through the public rawz module" {
         pef_decoder.validatePefPacked12(&complete, 4, 2),
     );
 }
+
+test "CC0 Nikon D300 14-bit lossless original and truncated control keep distinct verdicts" {
+    const allocator = std.testing.allocator;
+    const path = std.testing.environ.getAlloc(allocator, "RAWZ_TEST_NEF_14BIT") catch |err| switch (err) {
+        error.EnvironmentVariableMissing => return error.SkipZigTest,
+        else => return err,
+    };
+    defer allocator.free(path);
+
+    const io = std.testing.io;
+    const file = try std.Io.Dir.cwd().openFile(io, path, .{});
+    defer file.close(io);
+    const stat = try file.stat(io);
+    const bytes = try allocator.alloc(u8, @intCast(stat.size));
+    defer allocator.free(bytes);
+    var read_buffer: [4096]u8 = undefined;
+    var reader = file.reader(io, &read_buffer);
+    try reader.interface.readSliceAll(bytes);
+
+    var actual_digest: [32]u8 = undefined;
+    std.crypto.hash.sha2.Sha256.hash(bytes, &actual_digest, .{});
+    var expected_digest: [32]u8 = undefined;
+    _ = try std.fmt.hexToBytes(
+        &expected_digest,
+        "8b989f53c96995f7014ddd16124530cf6d8f3341ea9570d6312d9da1eb0a117a",
+    );
+    try std.testing.expectEqualSlices(u8, &expected_digest, &actual_digest);
+
+    const located_payload = try nef_sensor.locateSensorPayload(allocator, bytes);
+    const payload = switch (located_payload) {
+        .payload => |value| value,
+        else => return error.TestExpectedNikonPayload,
+    };
+    try std.testing.expectEqual(nef_sensor.Codec.nikon_huffman, payload.codec);
+    try std.testing.expectEqual(@as(u16, 34713), payload.compression);
+    try std.testing.expectEqual(@as(u8, 14), payload.bits_per_sample);
+
+    const located_metadata = try nef_sensor.locateHuffmanMetadata(allocator, bytes);
+    const metadata = switch (located_metadata) {
+        .metadata => |value| value,
+        else => return error.TestExpectedNikonMetadata,
+    };
+    const payload_start: usize = @intCast(payload.host_offset);
+    const payload_end: usize = @intCast(payload.host_offset + payload.byte_count);
+    const metadata_start: usize = @intCast(metadata.host_offset);
+    const metadata_end: usize = @intCast(metadata.host_offset + metadata.byte_count);
+    const input: nikon_huffman.Input = .{
+        .payload = bytes[payload_start..payload_end],
+        .width = payload.width,
+        .height = payload.height,
+        .bits_per_sample = payload.bits_per_sample,
+        .linearization_table = bytes[metadata_start..metadata_end],
+        .metadata_byte_order = metadata.byte_order,
+    };
+
+    switch (nikon_huffman.validate(input)) {
+        .structural => |reason| try std.testing.expectEqual(
+            sensor_validation.ReachReason.analytical_ceiling_unestablished,
+            reason,
+        ),
+        else => return error.TestExpectedStructuralReach,
+    }
+
+    var truncated = input;
+    truncated.payload = input.payload[0 .. input.payload.len - 1];
+    switch (nikon_huffman.validate(truncated)) {
+        .fail => |failure| {
+            try std.testing.expectEqual(sensor_validation.ErrorCode.truncated, failure.code);
+            try std.testing.expectEqual(sensor_validation.Region.payload, failure.region);
+            try std.testing.expectEqual(@as(u64, @intCast(truncated.payload.len)), failure.byte_offset);
+        },
+        else => return error.TestExpectedTruncationFailure,
+    }
+}
