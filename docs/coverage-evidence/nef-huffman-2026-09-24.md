@@ -24,9 +24,10 @@ ReleaseFast measurements used xorshift64 seed 42:
 darktable 5.6.0/rawspeed was executed as a black-box oracle in an isolated RAM
 configuration. It decoded the baseline and all 100 identically scheduled byte
 mutations. There were zero `rawspeed rejects + rawz passes` gaps. Rawz rejected
-69 mutations that the production decoder concealed or tolerated. The 31 rawz
-passes are valid alternate entropy streams under both validators; the format
-has no checksum that could distinguish them from camera output.
+69 mutations that the production decoder concealed or tolerated. The 31 shared
+passes remain unexplained survivors until a format rule or independent control
+establishes that each is a legal alternate stream. The absence of a checksum
+does not prove that no further objective syntax or metadata check applies.
 
 This evidence qualifies the 12-bit version-`0x46` lossless variant. The 14-bit
 table has deterministic synthetic coverage but no real-file scorecard yet.

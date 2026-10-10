@@ -39,6 +39,7 @@ pub const ReachReason = enum(u16) {
     unsupported_compression = 4,
     unsupported_metadata_layout = 5,
     metadata_levels_unavailable = 6,
+    work_limit_exceeded = 7,
 };
 
 /// A direct mapping surface for Validate: full, structural, or fail.
@@ -60,4 +61,5 @@ test "sensor result codes use stable explicit 16-bit values" {
     try std.testing.expectEqual(@as(u16, 4), @intFromEnum(ReachReason.unsupported_compression));
     try std.testing.expectEqual(@as(u16, 5), @intFromEnum(ReachReason.unsupported_metadata_layout));
     try std.testing.expectEqual(@as(u16, 6), @intFromEnum(ReachReason.metadata_levels_unavailable));
+    try std.testing.expectEqual(@as(u16, 7), @intFromEnum(ReachReason.work_limit_exceeded));
 }

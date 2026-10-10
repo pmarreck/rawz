@@ -52,7 +52,7 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqualStrings("clean", closure.get("status").?.string);
     try std.testing.expectEqualStrings("tiffz-parser", closure.get("module").?.string);
     try std.testing.expectEqualStrings(
-        "0004f7473645bfe0ddcd24ae4ee95a2863687f98",
+        "4e6d9c31332b69bdcd6773da8fd1f315b5b6ac26",
         closure.get("tiffz_commit").?.string,
     );
 
@@ -70,6 +70,11 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqual(@as(i64, @intCast(measured.shotgun_total)), declared.get("shotgun_total").?.integer);
 
     const strict_declared = root.get("bounded_scorecards").?.object.get("pef_huffman_strict_stream").?.object;
+    try std.testing.expect(std.mem.startsWith(
+        u8,
+        strict_declared.get("mktp_assessment").?.string,
+        "structural:",
+    ));
     const strict_measured = pef_decoder.measurePayloadCoverage();
     try std.testing.expectEqual(@as(i64, @intCast(strict_measured.known_good_total)), strict_declared.get("synthetic_known_good").?.integer);
     try std.testing.expectEqual(@as(i64, @intCast(strict_measured.false_positives)), strict_declared.get("synthetic_false_positives").?.integer);
@@ -77,4 +82,11 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqual(@as(i64, @intCast(strict_measured.random_byte_total)), strict_declared.get("synthetic_random_byte_total").?.integer);
     try std.testing.expectEqual(@as(i64, @intCast(strict_measured.eof_detected)), strict_declared.get("synthetic_eof_detected").?.integer);
     try std.testing.expectEqual(@as(i64, @intCast(strict_measured.eof_total)), strict_declared.get("synthetic_eof_total").?.integer);
+
+    const nikon_declared = root.get("bounded_scorecards").?.object.get("nikon_huffman_lossless_12bit").?.object;
+    try std.testing.expect(std.mem.startsWith(
+        u8,
+        nikon_declared.get("mktp_assessment").?.string,
+        "structural:",
+    ));
 }

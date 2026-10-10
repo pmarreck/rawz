@@ -190,6 +190,8 @@ test "public parsing modules are available through rawz" {
     _ = capabilities;
     _ = cr2_sensor;
     _ = nef_sensor;
+    _ = nikon_huffman;
+    _ = sensor_validation;
     _ = tiff_adapter;
     _ = uncompressed_sensor;
 }

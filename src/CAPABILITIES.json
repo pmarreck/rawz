@@ -17,7 +17,7 @@
   "production_closure": {
     "status": "clean",
     "module": "tiffz-parser",
-    "tiffz_commit": "0004f7473645bfe0ddcd24ae4ee95a2863687f98",
+    "tiffz_commit": "4e6d9c31332b69bdcd6773da8fd1f315b5b6ac26",
     "evidence": "the compiler graph maps rawz's sole tiffz import to src/parser.zig; shipped ELF/Mach-O load metadata and the complete Nix runtime closure reject zlib, OpenJPEG, libjpeg, libjxl, jpegz, zstd, lerc, and lzwz"
   },
   "bounded_scorecards": {
@@ -48,6 +48,7 @@
       "real_fixture_random_byte_total": 100,
       "real_fixture_eof_detected": 100,
       "real_fixture_eof_total": 100,
+      "mktp_assessment": "structural: the historical scorecard lacks an analytical ceiling, a demonstrated format-level residual class, and a current-binary independent replay",
       "qualification": "The real-file measurement covers one CC0 Pentax K10D 12-bit compressed PEF. PackBits 32773 remains structural after tiffz decompression because arbitrary packed sample values carry no integrity signal."
     },
     "uncompressed_14bit_words": {
@@ -72,6 +73,7 @@
       "eof_total": 100,
       "rawspeed_rejected_rawz_passed": 0,
       "rawspeed_mutations_total": 100,
+      "mktp_assessment": "structural: the historical scorecard lacks an analytical ceiling, a demonstrated format-level residual class, and a current-binary independent replay",
       "qualification": "The real-file measurement covers one CC0 Nikon D300 12-bit lossless-compressed NEF. darktable 5.6.0/rawspeed decoded the baseline and all 100 deterministic byte mutations; rawz rejected 69. Version-0x46 14-bit support has synthetic coverage only, and other Nikon table versions remain structural."
     }
   },

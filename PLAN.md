@@ -11,6 +11,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
+	- [ ] Inventory exact delivered RAW variants against MKTP's six criteria, then close one justified bounded sensor-path gap red-first or document the research/control boundary; preserve hashes, commands, controls, residuals, exact CI, and coordinator receipts (context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
     - [x] Ratify and deliver `Maximum Known Technically Possible` (`MKTP`) as the variant-scoped depth label for complete best-effort parsing whose remaining corruption blind spots are fundamental to the format (done 2026-09-26 15:15 EDT; durable Validate policy note delivered).
     - [x] Update Validate's coverage notes with each newly measured RAW corruption-detection gain, preserving independent-control provenance and structural/full caveats (done 2026-09-25 15:37 EDT; Validate `3dc478a2d`).
     - [x] Ship PEF syntax validation first: compression-aware 32773/65535 dispatch, bounded AOC MakerNote lookup, stable depth results with offsets, real 97/100 random-byte and 100/100 EOF coverage, exact-SHA Validate handoff, and terminal Mechatron pass (done 2026-09-24 20:10 EDT; `ef74184`).
@@ -29,5 +30,5 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 ## Next
 
 - [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
-- [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = genuinely undetectable, and Mecha RotShield parity is the honest answer. **Run it, never read it** — cleanroom.
+- [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = an unexplained survivor until legal ambiguity is established. **Run it, never read it** — cleanroom.
 - [ ] CR3 support (ISO BMFF container, not TIFF).

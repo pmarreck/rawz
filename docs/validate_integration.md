@@ -54,6 +54,8 @@ The classification API returns no findings, so it makes no offset claim beyond
 the tested bounded view. Sensor validators return
 `sensor_validation.Result`: `full`, `structural` plus an append-only reach
 reason, or `fail` plus an append-only error code, byte region, and byte offset.
+An explicit sample-work budget is a validator reach: Nikon 0x46 returns
+`structural(work_limit_exceeded)` without accusing the file of corruption.
 For PEF, `.payload` offsets are relative to the supplied strip and `.metadata`
 offsets are relative to the supplied Huffman-table bytes. Validate adds the
 checked host base of the corresponding range.
@@ -75,7 +77,7 @@ return `unsupported_metadata_layout` without condemning the file.
 
 ## Production closure gate
 
-rawz pins tiffz commit `0004f7473645bfe0ddcd24ae4ee95a2863687f98` and
+rawz pins tiffz commit `4e6d9c31332b69bdcd6773da8fd1f315b5b6ac26` and
 imports its `tiffz-parser` module. The named module contains the header, source,
 limits, IFD, tag, and decoder traversal surface without compression codecs.
 

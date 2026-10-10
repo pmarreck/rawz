@@ -70,7 +70,7 @@ pub fn validate(input: Input) sensor_validation.Result {
     const sample_count = std.math.mul(u64, input.width, input.height) catch
         return metadataFailure(.invalid_dimensions, 0);
     if (sample_count > input.limits.max_samples) {
-        return metadataFailure(.work_limit_exceeded, 0);
+        return .{ .structural = .work_limit_exceeded };
     }
     const table: Table = if (input.bits_per_sample == 12)
         .{ .counts = lossless_12_counts, .symbols = &lossless_12_symbols }
@@ -193,7 +193,7 @@ test "accepts an exact 12-bit lossless stream with zero differences" {
     try std.testing.expectEqual(sensor_validation.Result{ .full = {} }, result);
 }
 
-test "rejects dimensions above the explicit sample-work ceiling before reading payload" {
+test "classifies malformed dimensions and legal sample budgets over a set" {
     const metadata = [_]u8{
         0x46, 0x30,
         0x02, 0x00,
@@ -202,23 +202,63 @@ test "rejects dimensions above the explicit sample-work ceiling before reading p
         0x02, 0x00,
         0x00, 0x00,
     };
+    const payload = [_]u8{0xf8};
+    const cases = [_]struct {
+        name: []const u8,
+        input: Input,
+        expected: sensor_validation.Result,
+    }{
+        .{
+            .name = "malformed zero-width metadata",
+            .input = .{
+                .payload = &payload,
+                .width = 0,
+                .height = 1,
+                .bits_per_sample = 14,
+                .linearization_table = &metadata,
+                .metadata_byte_order = .big,
+                .limits = .{ .max_samples = 1 },
+            },
+            .expected = .{ .fail = .{
+                .code = .invalid_dimensions,
+                .region = .metadata,
+                .byte_offset = 0,
+            } },
+        },
+        .{
+            .name = "legal stream at the sample budget",
+            .input = .{
+                .payload = &payload,
+                .width = 1,
+                .height = 1,
+                .bits_per_sample = 14,
+                .linearization_table = &metadata,
+                .metadata_byte_order = .big,
+                .limits = .{ .max_samples = 1 },
+            },
+            .expected = .{ .full = {} },
+        },
+        .{
+            .name = "legal stream beyond the sample budget",
+            .input = .{
+                .payload = &payload,
+                .width = 1,
+                .height = 1,
+                .bits_per_sample = 14,
+                .linearization_table = &metadata,
+                .metadata_byte_order = .big,
+                .limits = .{ .max_samples = 0 },
+            },
+            .expected = .{ .structural = .work_limit_exceeded },
+        },
+    };
 
-    try std.testing.expectEqual(
-        sensor_validation.Result{ .fail = .{
-            .code = .work_limit_exceeded,
-            .region = .metadata,
-            .byte_offset = 0,
-        } },
-        validate(.{
-            .payload = &.{},
-            .width = 1024,
-            .height = 1024,
-            .bits_per_sample = 12,
-            .linearization_table = &metadata,
-            .metadata_byte_order = .little,
-            .limits = .{ .max_samples = 1024 },
-        }),
-    );
+    for (cases) |case| {
+        std.testing.expectEqual(case.expected, validate(case.input)) catch |err| {
+            std.debug.print("classification case failed: {s}\n", .{case.name});
+            return err;
+        };
+    }
 }
 
 test "pins truncated and trailing streams to exact payload offsets" {
