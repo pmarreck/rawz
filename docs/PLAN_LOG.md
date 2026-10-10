@@ -59,3 +59,7 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
   - [x] Add a blocking production-closure check over the parser import graph, exact compiler command, shipped ELF, and Nix store references. Curiosity poke: dynamic-section inspection alone misses static or debug-path Nix references.
   - [x] Preserve the published capability matrix and bounded PEF scorecard, changing only the now-proven closure status and evidence.
   - [x] Publish exact rawz repin evidence after canonical tests, build, exact Nix targets, and terminal Mechatron success for `01dcfea52ccf32f6d532ee18f0f6771101842992` in 80 seconds (2026-08-05 01:43 EDT).
+
+## Retired 2026-10-10
+
+- [x] [In Progress] Update rawz to current tiffz and flake inputs; package heads were already current, nixpkgs advanced to `34ca302a`, the resolved graph and all gates passed, and Mechatron passed `f793ce6` in 54 seconds (done 2026-09-24 17:03 EDT; commits `662fca3`, `f793ce6`).
