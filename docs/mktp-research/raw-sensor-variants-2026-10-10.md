@@ -104,6 +104,24 @@ The fixture hashes and historical commands are indexed from `docs/coverage-evide
 - A read-only consumer check found that Validate already maps NEF `work_limit_exceeded` reach to a structural result. No adapter or dependency-pin change is required.
 - Scope: deterministic synthetic controls only. No large fixture, cycle walk, real corpus, external decoder or mutation score was used.
 
+### 2026-10-10 02:00 EDT: local TIFFZ next-candidate pin
+
+- Source base: unpublished rawz `e463c07788595be2f9a7c7a8ba6f323b91cf55a8`; published rawz remained `5f60b18a12a2918b519bc1ff4da1b5086c70f7d1` under the candidate hold.
+- Dependency: TIFFZ moved from `4e6d9c31332b69bdcd6773da8fd1f315b5b6ac26` to published `618d38d403764fbe29692ec211d2d4b45e748e6d`.
+- Zig package identity: `tiffz-0.1.0-qutJAa7v0AHlPX8VKWKTtuHr1K94vuRg0QpggS9ER7W3`.
+- Imported-parser control: `src/parser.zig`, `src/limits.zig`, `src/ifd.zig` and `src/errors.zig` have no diff between those TIFFZ commits. The upstream delta is decoder/CLI/Nix evidence work outside rawz's parser-only import graph, so no new rawz corruption classifier was introduced.
+- Fixed-output discovery command: `build-budget --project rawz -- nix build .#default` with `pkgs.lib.fakeHash`.
+- Discovery build-budget unit: `build-rawz-fba5d234-e456-4955-87d8-493f1a445f89.scope`; expected exit code 1; reported `zigDepsHash` `sha256-1m7yJq4Ae+cHT7leenXx1HOjS1jZS4gEvfJKfpCkKL0=`.
+- Exact-hash package command: `build-budget --project rawz -- nix build .#default`.
+- Exact-hash build-budget unit: `build-rawz-9d38b6ad-8675-4d04-8827-52078d89ca3a.scope`; exit code 0.
+- Complete test command: `build-budget --project rawz -- nix develop -c ./test`.
+- Complete test build-budget unit: `build-rawz-a59ff144-292a-4dad-88fc-59f43a3998c7.scope`; exit code 0.
+- Complete optimized build command: `build-budget --project rawz -- nix develop -c ./build`.
+- Complete optimized build-budget unit: `build-rawz-586c8e5f-291e-4388-b11c-b0d2de43d14a.scope`; exit code 0.
+- Pin/configuration diff SHA-256 across `build.zig.zon`, `flake.nix`, `src/CAPABILITIES.json`, `src/capabilities.zig` and `docs/validate_integration.md`: `d2d2f3cefe627df5841bcb175e246df4edb74bf42f979f1ab8b1dbd9931cf1b8`.
+- Package output: `/nix/store/am55mfxw1pn7fwvlrxwqb5mra8dbfivx-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`. The packaged hashes remain unchanged, consistent with the identical imported parser sources.
+- Scope: dependency identity and package-cache closure only. No JPEG pin, vendor decoder, corpus, toolchain or MKTP assessment changed.
+
 ## Residuals and known gaps
 
 - PEF and Nikon entropy survivors remain unexplained until each is classified against a demonstrated format rule. The measured survivors are not an analytical any-value census.

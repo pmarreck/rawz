@@ -17,7 +17,7 @@
   "production_closure": {
     "status": "clean",
     "module": "tiffz-parser",
-    "tiffz_commit": "4e6d9c31332b69bdcd6773da8fd1f315b5b6ac26",
+    "tiffz_commit": "618d38d403764fbe29692ec211d2d4b45e748e6d",
     "evidence": "the compiler graph maps rawz's sole tiffz import to src/parser.zig; shipped ELF/Mach-O load metadata and the complete Nix runtime closure reject zlib, OpenJPEG, libjpeg, libjxl, jpegz, zstd, lerc, and lzwz"
   },
   "bounded_scorecards": {
