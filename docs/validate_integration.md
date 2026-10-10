@@ -58,6 +58,9 @@ An explicit sample-work budget is a validator reach: PEF private Huffman and
 Nikon 0x46 return `structural(work_limit_exceeded)` without accusing the file
 of corruption. PEF's legacy low-level error API retains its append-only
 `WorkLimitExceeded` value; consumers that classify evidence use the result API.
+Nikon CFA-IFD discovery likewise returns structural reach when another SubIFD
+would exceed its traversal ceiling. Malformed offsets inside the admitted
+prefix remain metadata failures with their source-relative offsets.
 For PEF, `.payload` offsets are relative to the supplied strip and `.metadata`
 offsets are relative to the supplied Huffman-table bytes. Validate adds the
 checked host base of the corresponding range.

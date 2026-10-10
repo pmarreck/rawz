@@ -86,18 +86,36 @@ The fixture hashes and historical commands are indexed from `docs/coverage-evide
 - A read-only consumer check found that Validate already maps PEF `work_limit_exceeded` reach to a structural result. No adapter or dependency-pin change is required.
 - Scope: deterministic synthetic controls only. No real fixture, external decoder or mutation score was rerun.
 
+### 2026-10-10 01:14 EDT: Nikon CFA traversal reach red and focused green
+
+- Source base: rawz `5f60b18a12a2918b519bc1ff4da1b5086c70f7d1`.
+- Fixture: a 156-byte synthetic big-endian TIFF with two SubIFDs, the first valid non-CFA and the second a valid 2-by-2 uncompressed Nikon CFA payload at host offset 148.
+- Red command: `build-budget --project rawz -- nix develop -c zig build test`.
+- Red build-budget unit: `build-rawz-63d08c60-9ab6-458c-b055-6a62c705666b.scope`; exit code 1 because the injected-limit locator did not exist.
+- Minimal implementation: add rawz-owned `LocateLimits` and `locateSensorPayloadWithLimits`; admit child visits through the inclusive cap and return `structural(work_limit_exceeded)` only before the next visit.
+- Controls: cap 2 locates the second-child CFA payload; cap 1 returns reach for the same bytes after validating the first child; corrupting the admitted first offset from 34 to 255 returns `fail(malformed_metadata)` at source-relative offset 255 under cap 1.
+- Green command: `build-budget --project rawz -- nix develop -c zig build test`.
+- Green build-budget unit: `build-rawz-75e26b76-b91b-4092-aa02-e8f5591da11d.scope`; exit code 0.
+- Complete test command: `build-budget --project rawz -- nix develop -c ./test`.
+- Complete test build-budget unit: `build-rawz-cf8a978b-8b7d-4099-a7b5-e5174fd080b3.scope`; exit code 0. The staged `src/nef_sensor.zig` diff SHA-256 was `dfa66848ffc1ce867e40143fc1ea2ea310a0e6429a389fbc7028596a48035819`.
+- Complete build command: `build-budget --project rawz -- nix develop -c ./build`.
+- Complete build build-budget unit: `build-rawz-b456af16-8807-4694-ae44-3096ba011969.scope`; exit code 0.
+- Package output: `/nix/store/gyj9icxvpld53hxl7rvjk4zf8g24wmyn-rawz-0.1.0`; executable SHA-256 `0c009730f50bb39060b2f1d9331d224d032d4f8baad767912f41b03b0d4d3649`; static-library SHA-256 `460589eb4a50969a96f0dc2eb467be7de3521245b6b1e10e7106b71030aa12da`. Both packaged hashes are unchanged from M1 and the PEF packet; this source/test API correction does not produce a different current C artifact.
+- A read-only consumer check found that Validate already maps NEF `work_limit_exceeded` reach to a structural result. No adapter or dependency-pin change is required.
+- Scope: deterministic synthetic controls only. No large fixture, cycle walk, real corpus, external decoder or mutation score was used.
+
 ## Residuals and known gaps
 
 - PEF and Nikon entropy survivors remain unexplained until each is classified against a demonstrated format rule. The measured survivors are not an analytical any-value census.
 - PEF private Huffman has no analytical ceiling, no current-binary replay and no input for metadata black/white bounds. Its result API now classifies the sample-work limit as reach; its intentionally retained low-level error value is not a corruption verdict.
 - Nikon 0x46 has no validated rule for final-byte padding, no analytical ceiling, and no real 14-bit scorecard. Lossy tables, split-row tables, packed data and other metadata versions remain unsupported.
-- Nikon's CFA-IFD locator still returns `FAIL work_limit_exceeded` when its IFD traversal budget is exhausted. The correct reach classification for that container-level budget remains open.
+- Nikon's CFA-IFD locator now classifies traversal-budget exhaustion as reach after validating the admitted prefix. Malformed admitted offsets remain failures; recursive IFD-cycle handling is outside this nonrecursive SubIFD-array locator.
 - Uncompressed-word measurements cover one 14-bit Nikon layout. Packed samples, row padding, noncontiguous strips and variants with usable level metadata require separate rows.
 - CR2 payload validation still depends on an exact JPEGZ/TIFFZ path that accepts Canon's two-component subsampled SOF3 layout. Locator success says nothing about entropy-stream integrity.
 - Historical measurements used the mutation definitions recorded at their dates. They are not silently relabeled under later sniper, bolter, shotgun or nuke profiles.
 
 ## Bounded next action
 
-Correct Nikon's CFA-IFD traversal budget from a corruption failure to a named structural reach. Prove the classifier with a malformed offset or actual cycle, a valid at-limit traversal, and the same valid input under a lower injected budget. Keep controls finite and allocation-small.
+Reassess the exact-variant inventory after the bounded budget corrections without promoting any row. Remaining work is format evidence: objective invariants, demonstrated residual classes, analytical ceilings and independent current-binary replay.
 
 After the focused change, run the complete local test/build entry point through `build-budget`, record the exact source and binary hashes, publish the commit, obtain exact Mechatron evidence, and send the coordinator a delivery receipt. Validate adoption remains a separate consumer action.

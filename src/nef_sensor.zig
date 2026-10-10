@@ -44,6 +44,12 @@ pub const MetadataLocateResult = union(enum) {
     fail: sensor_validation.Failure,
 };
 
+const default_tiff_limits: tiffz.Limits = .{};
+
+pub const LocateLimits = struct {
+    max_sub_ifds: u32 = default_tiff_limits.max_ifds,
+};
+
 /// Locate Nikon's Huffman predictor/table bytes through the Exif MakerNote.
 /// Returned offsets are relative to the complete NEF, while `byte_order`
 /// remains the parent TIFF order used by Nikon's predictor words.
@@ -185,9 +191,20 @@ pub fn locateSensorPayload(
     allocator: std.mem.Allocator,
     bytes: []const u8,
 ) error{OutOfMemory}!LocateResult {
+    return locateSensorPayloadWithLimits(allocator, bytes, .{});
+}
+
+/// Locate the CFA sensor SubIFD with a caller-selected traversal ceiling.
+/// The ceiling limits visits; malformed offsets inside the admitted prefix
+/// remain file failures rather than validator-reach results.
+pub fn locateSensorPayloadWithLimits(
+    allocator: std.mem.Allocator,
+    bytes: []const u8,
+    traversal_limits: LocateLimits,
+) error{OutOfMemory}!LocateResult {
     var handle = tiffz.source.BufferHandle.init(bytes);
     const source = tiffz.Source.fromBuffer(&handle);
-    const limits: tiffz.Limits = .{};
+    const parser_limits: tiffz.Limits = .{};
     const header = tiffz.header.parse(source) catch {
         return metadataFailure(.malformed_metadata, 0);
     };
@@ -198,7 +215,7 @@ pub fn locateSensorPayload(
         source,
         header.endian,
         header.ifd0_offset,
-        limits,
+        parser_limits,
         offset_width,
     ) catch |err| switch (err) {
         error.OutOfMemory => return error.OutOfMemory,
@@ -211,9 +228,6 @@ pub fn locateSensorPayload(
     if (sub_ifds.count == 0 or sub_ifds.count > std.math.maxInt(u32)) {
         return metadataFailure(.malformed_metadata, header.ifd0_offset);
     }
-    if (sub_ifds.count > limits.max_ifds) {
-        return metadataFailure(.work_limit_exceeded, header.ifd0_offset);
-    }
     switch (sub_ifds.field_type) {
         .long, .long8, .ifd8 => {},
         else => return metadataFailure(.malformed_metadata, header.ifd0_offset),
@@ -221,6 +235,9 @@ pub fn locateSensorPayload(
 
     var index: u32 = 0;
     while (index < sub_ifds.count) : (index += 1) {
+        if (index >= traversal_limits.max_sub_ifds) {
+            return .{ .structural = .work_limit_exceeded };
+        }
         const child_offset = primary.arrayElementU64(
             sub_ifds_tag,
             index,
@@ -232,7 +249,7 @@ pub fn locateSensorPayload(
             source,
             header.endian,
             child_offset,
-            limits,
+            parser_limits,
             offset_width,
         ) catch |err| switch (err) {
             error.OutOfMemory => return error.OutOfMemory,
@@ -400,6 +417,81 @@ test "locates a big-endian uncompressed Nikon CFA SubIFD" {
         } },
         try locateSensorPayload(std.testing.allocator, nef),
     );
+}
+
+test "classifies CFA traversal budgets and a malformed admitted offset over a set" {
+    const nef = "MM\x00\x2a\x00\x00\x00\x08" ++
+        "\x00\x01" ++
+        "\x01\x4a\x00\x04\x00\x00\x00\x02\x00\x00\x00\x1a" ++
+        "\x00\x00\x00\x00" ++
+        "\x00\x00\x00\x22\x00\x00\x00\x34" ++
+        "\x00\x01" ++
+        "\x01\x06\x00\x03\x00\x00\x00\x01\x00\x01\x00\x00" ++
+        "\x00\x00\x00\x00" ++
+        "\x00\x07" ++
+        "\x01\x00\x00\x04\x00\x00\x00\x01\x00\x00\x00\x02" ++
+        "\x01\x01\x00\x04\x00\x00\x00\x01\x00\x00\x00\x02" ++
+        "\x01\x02\x00\x03\x00\x00\x00\x01\x00\x0e\x00\x00" ++
+        "\x01\x03\x00\x03\x00\x00\x00\x01\x00\x01\x00\x00" ++
+        "\x01\x06\x00\x03\x00\x00\x00\x01\x80\x23\x00\x00" ++
+        "\x01\x11\x00\x04\x00\x00\x00\x01\x00\x00\x00\x94" ++
+        "\x01\x17\x00\x04\x00\x00\x00\x01\x00\x00\x00\x08" ++
+        "\x00\x00\x00\x00" ++
+        "\x00\x00\x00\x00\x00\x00" ++
+        "\x09\xdc\x11\x5a\x0a\x36\x11\x16";
+    var malformed = nef.*;
+    malformed[29] = 0xff;
+
+    const cases = [_]struct {
+        name: []const u8,
+        bytes: []const u8,
+        max_sub_ifds: u32,
+        expected: LocateResult,
+    }{
+        .{
+            .name = "valid CFA at the inclusive traversal cap",
+            .bytes = nef,
+            .max_sub_ifds = 2,
+            .expected = .{ .payload = .{
+                .codec = .uncompressed_words,
+                .compression = 1,
+                .host_offset = 148,
+                .byte_count = 8,
+                .width = 2,
+                .height = 2,
+                .bits_per_sample = 14,
+                .byte_order = .big,
+            } },
+        },
+        .{
+            .name = "same valid CFA beyond the traversal cap",
+            .bytes = nef,
+            .max_sub_ifds = 1,
+            .expected = .{ .structural = .work_limit_exceeded },
+        },
+        .{
+            .name = "malformed first offset inside the admitted prefix",
+            .bytes = &malformed,
+            .max_sub_ifds = 1,
+            .expected = .{ .fail = .{
+                .code = .malformed_metadata,
+                .region = .metadata,
+                .byte_offset = 255,
+            } },
+        },
+    };
+
+    for (cases) |case| {
+        const actual = try locateSensorPayloadWithLimits(
+            std.testing.allocator,
+            case.bytes,
+            .{ .max_sub_ifds = case.max_sub_ifds },
+        );
+        std.testing.expectEqual(case.expected, actual) catch |err| {
+            std.debug.print("classification case failed: {s}\n", .{case.name});
+            return err;
+        };
+    }
 }
 
 test "locates Nikon Huffman metadata through Exif and the embedded MakerNote TIFF" {
