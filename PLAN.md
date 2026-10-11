@@ -4,7 +4,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
-- [ ] Reconcile every direct, transitive, and toolchain dependency pin to its current upstream head, regenerate only required hashes, pass the complete local and exact CI gates, and reply durably to Validate.
+- [x] Reconcile every direct, transitive, and toolchain dependency pin to current upstream heads through JP2Z `91264891`, JPEGZ `f1a255a`, TIFFZ `e9564e4`, Nixpkgs `8edc0c72`, flake-utils `11707dc2`, nix-systems `d36eeed1`, LIBJXLZ `93b29e86`, and Zig 0.16.0; complete local gates passed and Mechatron Prime passed `65255d5` in 44 seconds (done 2026-10-10 20:34 EDT).
 
 - [ ] Inventory launch-priority RAW exact variants against recovered evidence, then deliver the highest-value JPEG-independent sensor-payload objective check red-first with exact revision, fixture, profile, false-positive, and residual identities (coordination window ends 2026-10-11 02:30 EDT).
 	- [ ] Correct PEF compression-65535 successful syntax passes from `full` to structural without relabeling historical mutation evidence as new coverage.
@@ -22,7 +22,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 	- [x] Correct Nikon CFA-IFD traversal budgets to named structural reach with a valid inclusive-cap traversal, the same fixture under a lower budget, and a malformed offset that remains a file defect (done 2026-10-10 02:44 EDT; `e463c07` in `0f982f5`, exact Mechatron Prime PASS in 42s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
 	- [x] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).
 	- [x] Forward-pin TIFFZ separately from accepted `618d38d` evidence to published `abc2beb2`, regenerate its dependency hash, and run complete local gates before publication (done 2026-10-10 02:49 EDT; `49d35c9`, Mechatron Prime PASS in 43s).
-    - [x] Ratify and deliver `Maximum Known Technically Possible` (`MKTP`) as the variant-scoped depth label for complete best-effort parsing whose remaining corruption blind spots are fundamental to the format (done 2026-09-26 15:15 EDT; durable Validate policy note delivered).
     - [ ] Ship DNG/CR2/compressed-NEF sensor syntax validation and independent per-variant coverage.
       - [x] Keep DNG CFA Compression 7 in TIFFZ: the synthetic single-component JPEGZ path shipped in TIFFZ `b38c2f47` and is present in the full TIFFZ `abc2beb2` commit that also supplies rawz's parser-only pin; a real camera-DNG scorecard remains consumer evidence, not a rawz implementation (reconciled 2026-10-10 13:05 EDT).
       - [x] Recover the Canon provider seam without bypassing the provider hold: JPEGZ `6ef766c` validates the EOS 20D two-component 12-bit SOF3 stream through EOI, both components use 1x1 sampling, and TIFFZ `abc2beb2` contains the repin; rawz's exact-range locator was already delivered (reconciled 2026-10-10 13:05 EDT).
