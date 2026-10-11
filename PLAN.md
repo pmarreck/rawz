@@ -4,6 +4,12 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
+- [ ] Reconcile every direct, transitive, and toolchain dependency pin to its current upstream head, regenerate only required hashes, pass the complete local and exact CI gates, and reply durably to Validate.
+
+- [ ] Inventory launch-priority RAW exact variants against recovered evidence, then deliver the highest-value JPEG-independent sensor-payload objective check red-first with exact revision, fixture, profile, false-positive, and residual identities (coordination window ends 2026-10-11 02:30 EDT).
+	- [ ] Correct PEF compression-65535 successful syntax passes from `full` to structural without relabeling historical mutation evidence as new coverage.
+	- [ ] Deliver Sony ILCE-7M3 ARW 2.3.3 14-bit Compression-32767 packet validation with exact CC0 original, truncated peers, legal counterexamples, bounded measurement, and a grammar-only detectability bound.
+
 - [x] Reconcile the exact-variant RAW plan against published Canon/DNG/Nikon evidence, then correct the Nikon D300 14-bit lossless-compressed version-0x46 claim red-first with the exact CC0 original, a truncated malformed control, and independently attributable corpus evidence (done 2026-10-10 13:36 EDT).
 
 - [x] Refresh every direct, transitive, and toolchain dependency pin to its upstream head, including tiffz `4e6d9c31`, nixpkgs `39ad350a`, flake-utils `11707dc2`, nix-systems `d36eeed1`, and Zig 0.16.0; regenerated hashes and the full local gate set pass (done 2026-10-08 21:33 EDT).

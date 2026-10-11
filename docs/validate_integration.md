@@ -82,7 +82,7 @@ return `unsupported_metadata_layout` without condemning the file.
 
 ## Production closure gate
 
-rawz pins tiffz commit `abc2beb2aaaa93f46990a332d85cfa6fd85ffdb6` and
+rawz pins tiffz commit `e9564e4f11c597f858beb4d113761ea478e98d77` and
 imports its `tiffz-parser` module. The named module contains the header, source,
 limits, IFD, tag, and decoder traversal surface without compression codecs.
 
