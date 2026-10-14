@@ -6,18 +6,18 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [x] Reconcile every direct, transitive, and toolchain dependency pin to current upstream heads through JP2Z `91264891`, JPEGZ `f1a255a`, TIFFZ `e9564e4`, Nixpkgs `8edc0c72`, flake-utils `11707dc2`, nix-systems `d36eeed1`, LIBJXLZ `93b29e86`, and Zig 0.16.0; complete local gates passed and Mechatron Prime passed `65255d5` in 44 seconds (done 2026-10-10 20:34 EDT).
 
-- [ ] Inventory launch-priority RAW exact variants against recovered evidence, then deliver the highest-value JPEG-independent sensor-payload objective check red-first with exact revision, fixture, profile, false-positive, and residual identities (coordination window ends 2026-10-11 02:30 EDT).
-	- [ ] Correct PEF compression-65535 successful syntax passes from `full` to structural without relabeling historical mutation evidence as new coverage.
-	- [ ] Deliver Sony ILCE-7M3 ARW 2.3.3 14-bit Compression-32767 packet validation with exact CC0 original, truncated peers, legal counterexamples, bounded measurement, and a grammar-only detectability bound.
+- [ ] Deliver the highest-value JPEG-independent launch-priority RAW checks red-first with exact revision, fixture, profile, false-positive, and residual identities.
+	- [x] Preserve the held rawz/TIFFZ/JPEGZ/JP2Z producer receipts and send Validate an exact replay matrix for RAW-only fixes that work with its permitted pins (done 2026-10-10 21:37 EDT; context: `docs/plan_context/provider-hold-raw-replay.md`).
+	- [x] Publish the exact launch-subset handoff for compressed Nikon version 0x46 and Pentax compression 65535, including consumer reach, current fixtures/profiles, specificity, residuals, and the actual ARW2 locator state (done 2026-10-14 15:34 EDT; evidence: `docs/coverage-evidence/raw-launch-subset-2026-10-14.md`).
+	- [ ] After the Sony lane, define and deliver the first independently testable Panasonic residual/precision rule with paired pristine and malformed controls.
+	- [ ] Reconcile rawz sensor-result vocabulary with Validate's published typed-finding and reach contract after Validate identifies the candidate carrying the 2026-10-14 verdict terminology; do not introduce unpublished statuses.
 
 - [x] Reconcile the exact-variant RAW plan against published Canon/DNG/Nikon evidence, then correct the Nikon D300 14-bit lossless-compressed version-0x46 claim red-first with the exact CC0 original, a truncated malformed control, and independently attributable corpus evidence (done 2026-10-10 13:36 EDT).
 
-- [x] Refresh every direct, transitive, and toolchain dependency pin to its upstream head, including tiffz `4e6d9c31`, nixpkgs `39ad350a`, flake-utils `11707dc2`, nix-systems `d36eeed1`, and Zig 0.16.0; regenerated hashes and the full local gate set pass (done 2026-10-08 21:33 EDT).
 - [ ] Audit active mutation labels and migrate legacy dense `shotgun` usage to `nuke` without rewriting historical evidence.
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
-	- [x] Inventory exact delivered RAW variants against MKTP's six criteria, then close one justified bounded sensor-path gap red-first or document the research/control boundary; preserve hashes, commands, controls, residuals, exact CI, and coordinator receipts (done 2026-10-10 00:49 EDT; `ba929f8`, Mechatron Prime PASS in 45s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
 	- [x] Correct the PEF sample-work budget from a corruption failure to named structural reach with malformed, at-limit, and same-input over-budget controls; preserve the low-level append-only error ABI and exact delivery evidence (done 2026-10-10 01:08 EDT; `711b1fa`, Mechatron Prime PASS in 43s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
 	- [x] Correct Nikon CFA-IFD traversal budgets to named structural reach with a valid inclusive-cap traversal, the same fixture under a lower budget, and a malformed offset that remains a file defect (done 2026-10-10 02:44 EDT; `e463c07` in `0f982f5`, exact Mechatron Prime PASS in 42s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
 	- [x] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).

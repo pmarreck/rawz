@@ -126,7 +126,7 @@ pub fn measurePayloadCoverage() PayloadCoverageMetrics {
         .huffman_table = &table,
     };
 
-    if (!isFull(validatePefPayload(base_input))) metrics.false_positives += 1;
+    if (!isAccepted(validatePefPayload(base_input))) metrics.false_positives += 1;
 
     var prng = std.Random.DefaultPrng.init(42);
     const random = prng.random();
@@ -150,10 +150,10 @@ pub fn measurePayloadCoverage() PayloadCoverageMetrics {
     return metrics;
 }
 
-fn isFull(result: sensor_validation.Result) bool {
+fn isAccepted(result: sensor_validation.Result) bool {
     return switch (result) {
-        .full => true,
-        else => false,
+        .full, .structural => true,
+        .fail => false,
     };
 }
 
@@ -432,7 +432,7 @@ pub fn validatePefPayload(input: PayloadInput) sensor_validation.Result {
                     input.limits,
                     true,
                 )) |finding| return .{ .fail = finding };
-                return .{ .full = {} };
+                return .{ .structural = .analytical_ceiling_unestablished };
             },
         },
         else => return .{ .structural = .unsupported_compression },
@@ -596,6 +596,7 @@ fn decodeErrorFromCode(code: sensor_validation.ErrorCode) PefDecodeError {
         .malformed_metadata,
         .sample_below_black_level,
         .sample_above_white_level,
+        .invalid_packet_header,
         => error.InvalidHuffmanCode,
     };
 }
@@ -825,7 +826,7 @@ test "PEF payload classifies malformed dimensions and legal work budgets over a 
                 .huffman_table = &table,
                 .limits = .{ .max_pixels = 1 },
             },
-            .expected = .{ .full = {} },
+            .expected = .{ .structural = .analytical_ceiling_unestablished },
         },
         .{
             .name = "same legal stream beyond the pixel budget",
@@ -889,7 +890,10 @@ test "PEF payload dispatch distinguishes TIFF PackBits from Pentax Huffman" {
         .bits_per_sample = 12,
         .huffman_table = &table,
     });
-    try std.testing.expectEqual(sensor_validation.Result{ .full = {} }, huffman);
+    try std.testing.expectEqual(
+        sensor_validation.Result{ .structural = .analytical_ceiling_unestablished },
+        huffman,
+    );
 }
 
 test "PEF payload dispatch names every non-full integration reach" {
@@ -1047,7 +1051,10 @@ test "PEF Huffman tables honor the MakerNote byte order" {
         .huffman_table = &k10d_table,
         .huffman_table_byte_order = .big,
     });
-    try std.testing.expectEqual(sensor_validation.Result{ .full = {} }, result);
+    try std.testing.expectEqual(
+        sensor_validation.Result{ .structural = .analytical_ceiling_unestablished },
+        result,
+    );
 }
 
 test "PEF AOC MakerNote lookup returns Huffman table bytes, order, and offset" {

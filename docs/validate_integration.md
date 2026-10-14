@@ -70,7 +70,8 @@ only `.tiff_decoded` bytes after tiffz has checked and removed PackBits; rawz
 then checks the 12-bit extent and returns structural because arbitrary sample
 values have no integrity signal. Pentax private Huffman code `65535` accepts
 `.encoded` bytes and an optional MakerNote table plus its byte order. A present
-table enables strict syntax-to-end validation; a missing table returns the
+table enables strict syntax-to-end validation and a successful pass returns
+`structural(analytical_ceiling_unestablished)`; a missing table returns the
 named structural reach reason `huffman_table_unavailable`.
 
 `pef_decoder.findPefHuffmanTable` locates tag `0x0220` in the supported AOC
@@ -79,6 +80,16 @@ host-file offset because the tag stores a host-absolute table offset. The
 locator checks subtraction and extent before returning borrowed table bytes,
 their byte order, and a MakerNote-relative offset. Other MakerNote layouts
 return `unsupported_metadata_layout` without condemning the file.
+
+Sony ARW2 integration uses `sony_sensor.locateSensorPayload` on the complete
+file. The locator accepts a CFA SubIFD with one exact Compression-32767 strip
+and returns its top-level host offset, byte count, dimensions, and bit depth.
+The caller passes that borrowed strip to `sony_sensor.validateCompressed`.
+The admitted 14-bit variant requires a width divisible by 32, checks the exact
+`width * height` byte extent and each fixed 16-byte packet header, and returns
+`structural(analytical_ceiling_unestablished)` after a successful syntax pass.
+Payload failure offsets are relative to the returned strip; locator failures
+use top-level metadata offsets.
 
 ## Production closure gate
 

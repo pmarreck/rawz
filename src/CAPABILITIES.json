@@ -51,6 +51,25 @@
       "mktp_assessment": "structural: the historical scorecard lacks an analytical ceiling, a demonstrated format-level residual class, and a current-binary independent replay",
       "qualification": "The real-file measurement covers one CC0 Pentax K10D 12-bit compressed PEF. PackBits 32773 remains structural after tiffz decompression because arbitrary packed sample values carry no integrity signal."
     },
+    "sony_arw2_compressed_14bit": {
+      "scope": "Sony ILCE-7M3 ARW 2.3.3 CFA Compression 32767 with exact single-strip discovery, fixed 16-byte packet headers, declared extent, and stable offsets",
+      "real_fixture_sha256": "250784580ea527442c09004417bb0eead484f2bf3ee8f9121a776ac65bb50d0f",
+      "baseline_result": "structural:analytical_ceiling_unestablished",
+      "known_good": 1,
+      "false_positives": 0,
+      "truncated_controls": 1,
+      "truncated_controls_detected": 1,
+      "packets_scanned": 1521072,
+      "invalid_max_below_min": 0,
+      "invalid_coincident_extrema": 0,
+      "legal_equal_extrema_values": 258,
+      "legal_deltas_above_stored_maximum": 28086,
+      "rawspeed_baseline_accepted": true,
+      "rawspeed_identity": "darktable 5.6.0/rawspeed black-box decode",
+      "rawspeed_binary_sha256": "763c9b14ab75e4e326098b8fd8cfef5e648b614d2fc1ee302dcdee1498c4883f",
+      "mktp_assessment": "structural: the packet grammar leaves all 98 delta bits per 128-bit packet unconstrained and the remaining checked relations do not establish the format-wide ceiling",
+      "qualification": "The exact real-file row covers one CC0 Sony ILCE-7M3 14-bit compressed ARW and one deterministic one-byte EOF control. The 76.5625% unconstrained-bit share is a check-bound lower bound, not a format-wide unavoidable miss rate."
+    },
     "uncompressed_14bit_words": {
       "scope": "big-endian 14-bit Nikon CFA samples stored in contiguous 16-bit words; high-bit headroom is checked but black/white level metadata is unavailable",
       "real_fixture_sha256": "0261523d0ab4694df0219404eb08af5db04697a05e85718e7f7bd42d283205f4",
@@ -129,8 +148,8 @@
       "extensions": ["arw", "sr2", "srf"],
       "container": "TIFF-derived Sony private data",
       "classification_state": "partial",
-      "validation_state": "unsupported",
-      "evidence": "synthetic Sony semantic classification exists; Sony compression variants are not validated"
+      "validation_state": "partial",
+      "evidence": "Sony ILCE-7M3 ARW 2.3.3 14-bit Compression 32767 has exact CFA SubIFD range discovery, declared-extent checks, fixed-packet header checks, legal counterexamples, one CC0 pristine control, and one deterministic EOF control; successful syntax remains structural because the analytical ceiling is unestablished"
     },
     {
       "id": "orf-ori",

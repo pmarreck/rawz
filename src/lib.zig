@@ -20,6 +20,7 @@ pub const nef_sensor = @import("nef_sensor.zig");
 pub const nikon_huffman = @import("nikon_huffman.zig");
 pub const pef_decoder = @import("pef_decoder.zig");
 pub const sensor_validation = @import("sensor_validation.zig");
+pub const sony_sensor = @import("sony_sensor.zig");
 pub const tiff_adapter = @import("tiff_adapter.zig");
 pub const uncompressed_sensor = @import("uncompressed_sensor.zig");
 
@@ -192,6 +193,7 @@ test "public parsing modules are available through rawz" {
     _ = nef_sensor;
     _ = nikon_huffman;
     _ = sensor_validation;
+    _ = sony_sensor;
     _ = tiff_adapter;
     _ = uncompressed_sensor;
 }
@@ -276,5 +278,80 @@ test "CC0 Nikon D300 14-bit lossless original and truncated control keep distinc
             try std.testing.expectEqual(@as(u64, @intCast(truncated.payload.len)), failure.byte_offset);
         },
         else => return error.TestExpectedTruncationFailure,
+    }
+}
+
+test "CC0 Sony ILCE-7M3 ARW2 original and truncated control keep distinct verdicts" {
+    const allocator = std.testing.allocator;
+    const path = std.testing.environ.getAlloc(allocator, "RAWZ_TEST_ARW2") catch |err| switch (err) {
+        error.EnvironmentVariableMissing => return error.SkipZigTest,
+        else => return err,
+    };
+    defer allocator.free(path);
+
+    const io = std.testing.io;
+    const file = try std.Io.Dir.cwd().openFile(io, path, .{});
+    defer file.close(io);
+    const stat = try file.stat(io);
+    const bytes = try allocator.alloc(u8, @intCast(stat.size));
+    defer allocator.free(bytes);
+    var read_buffer: [4096]u8 = undefined;
+    var reader = file.reader(io, &read_buffer);
+    try reader.interface.readSliceAll(bytes);
+
+    var actual_digest: [32]u8 = undefined;
+    std.crypto.hash.sha2.Sha256.hash(bytes, &actual_digest, .{});
+    var expected_digest: [32]u8 = undefined;
+    _ = try std.fmt.hexToBytes(
+        &expected_digest,
+        "250784580ea527442c09004417bb0eead484f2bf3ee8f9121a776ac65bb50d0f",
+    );
+    try std.testing.expectEqualSlices(u8, &expected_digest, &actual_digest);
+
+    const located = try sony_sensor.locateSensorPayload(allocator, bytes);
+    const payload = switch (located) {
+        .payload => |value| value,
+        else => return error.TestExpectedSonyPayload,
+    };
+    try std.testing.expectEqual(@as(u64, 1_302_528), payload.host_offset);
+    try std.testing.expectEqual(@as(u64, 24_337_152), payload.byte_count);
+    try std.testing.expectEqual(@as(u32, 6_048), payload.width);
+    try std.testing.expectEqual(@as(u32, 4_024), payload.height);
+    try std.testing.expectEqual(@as(u8, 14), payload.bits_per_sample);
+
+    const payload_start: usize = @intCast(payload.host_offset);
+    const payload_end: usize = @intCast(payload.host_offset + payload.byte_count);
+    const input: sony_sensor.Input = .{
+        .payload = bytes[payload_start..payload_end],
+        .width = payload.width,
+        .height = payload.height,
+        .bits_per_sample = payload.bits_per_sample,
+    };
+    switch (sony_sensor.validateCompressed(input)) {
+        .structural => |reason| try std.testing.expectEqual(
+            sensor_validation.ReachReason.analytical_ceiling_unestablished,
+            reason,
+        ),
+        else => return error.TestExpectedStructuralReach,
+    }
+
+    var truncated = input;
+    truncated.payload = input.payload[0 .. input.payload.len - 1];
+    switch (sony_sensor.validateCompressed(truncated)) {
+        .fail => |failure| {
+            try std.testing.expectEqual(sensor_validation.ErrorCode.truncated, failure.code);
+            try std.testing.expectEqual(sensor_validation.Region.payload, failure.region);
+            try std.testing.expectEqual(@as(u64, @intCast(truncated.payload.len)), failure.byte_offset);
+        },
+        else => return error.TestExpectedTruncationFailure,
+    }
+
+    switch (try sony_sensor.locateSensorPayload(allocator, bytes[0 .. bytes.len - 1])) {
+        .fail => |failure| {
+            try std.testing.expectEqual(sensor_validation.ErrorCode.metadata_out_of_bounds, failure.code);
+            try std.testing.expectEqual(sensor_validation.Region.metadata, failure.region);
+            try std.testing.expectEqual(@as(u64, 149_006), failure.byte_offset);
+        },
+        else => return error.TestExpectedMetadataBoundsFailure,
     }
 }

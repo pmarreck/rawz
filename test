@@ -31,6 +31,16 @@ else
 	failures=$((failures + 1))
 fi
 
+if [ -n "${RAWZ_TEST_NEF_14BIT:-}${RAWZ_TEST_ARW2:-}" ]; then
+	echo "==> external CC0 RAW fixture controls"
+	if nix develop -c zig build test 2>&1; then
+		echo "    ok"
+	else
+		echo "    FAIL: external CC0 RAW fixture controls" >&2
+		failures=$((failures + 1))
+	fi
+fi
+
 if [ "$failures" -eq 0 ]; then
 	echo "All checks passed."
 else

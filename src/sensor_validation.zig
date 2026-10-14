@@ -16,6 +16,7 @@ pub const ErrorCode = enum(u16) {
     malformed_metadata = 9,
     sample_below_black_level = 10,
     sample_above_white_level = 11,
+    invalid_packet_header = 12,
 };
 
 /// The byte range in which a failure offset is measured.
@@ -57,6 +58,7 @@ test "sensor result codes use stable explicit 16-bit values" {
     try std.testing.expectEqual(@as(u16, 9), @intFromEnum(ErrorCode.malformed_metadata));
     try std.testing.expectEqual(@as(u16, 10), @intFromEnum(ErrorCode.sample_below_black_level));
     try std.testing.expectEqual(@as(u16, 11), @intFromEnum(ErrorCode.sample_above_white_level));
+    try std.testing.expectEqual(@as(u16, 12), @intFromEnum(ErrorCode.invalid_packet_header));
     try std.testing.expectEqual(u16, @typeInfo(ReachReason).@"enum".tag_type);
     try std.testing.expectEqual(@as(u16, 0), @intFromEnum(ReachReason.requires_tiff_decompression));
     try std.testing.expectEqual(@as(u16, 4), @intFromEnum(ReachReason.unsupported_compression));
