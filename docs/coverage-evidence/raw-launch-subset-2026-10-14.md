@@ -67,4 +67,9 @@ exact single-strip CFA SubIFD discovery in the current rawz candidate. The
 exact CC0 pristine file and one-byte EOF peer are exercised by the optional
 fixture test. Successful syntax remains structural. This path was incomplete
 before the locator landed, so it is reported separately from the two established
-launch controls above until Validate consumes the published candidate.
+launch controls above until Validate consumes the published candidate. The
+subsequent full-file campaign in
+[`arw2-full-file-corruption-2026-10-15.md`](arw2-full-file-corruption-2026-10-15.md)
+adds 385 applied `sniper`, `bolter`, `shotgun`, and `nuke` cases apiece with
+95% Wilson intervals and exact survivor rounds. Those whole-file results do
+not change the structural classification or establish an analytical ceiling.

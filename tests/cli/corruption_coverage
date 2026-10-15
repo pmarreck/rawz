@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+set -u
+
+failures=0
+case_root="$(mktemp -d "${TMPDIR:-/tmp}/rawz-corruption-coverage-test.XXXXXX")"
+trap 'rm -rf -- "$case_root"' EXIT
+
+fail() {
+	echo "FAIL: $*" >&2
+	failures=$((failures + 1))
+}
+
+assert_jq() {
+	file="$1"
+	expression="$2"
+	label="$3"
+	if ! jq -e "$expression" "$file" >/dev/null 2>&1; then
+		fail "$label"
+	fi
+}
+
+assert_jq_slurp() {
+	file="$1"
+	expression="$2"
+	label="$3"
+	if ! jq -se "$expression" "$file" >/dev/null 2>&1; then
+		fail "$label"
+	fi
+}
+
+fixture="$case_root/known-good.ARW"
+printf 'known-good\n' >"$fixture"
+
+fake_cr="$case_root/corruption-reader"
+cat >"$fake_cr" <<'EOF'
+#!/usr/bin/env bash
+set -u
+profile="${2:-}"
+round=0
+report=""
+shift 2
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--master) shift 2 ;;
+		--round) round="$2"; shift 2 ;;
+		--report) report="$2"; shift 2 ;;
+		*) shift ;;
+	esac
+done
+printf '{"report":1,"item":0,"round":%s,"status":"applied","noop":null,"emitted":true,"record":{}}\n' "$round" >"$report"
+printf '%s:%s\n' "$profile" "$round"
+EOF
+chmod +x "$fake_cr"
+
+fake_probe="$case_root/rawz-coverage-probe"
+cat >"$fake_probe" <<'EOF'
+#!/usr/bin/env bash
+set -u
+if [ "${1:-}" != "-" ]; then
+	printf '{"probe":1,"verdict":"accepted","format":"arw","reach":"structural","reason":"analytical_ceiling_unestablished"}\n'
+	exit 0
+fi
+IFS=: read -r profile round
+threshold=0
+case "$profile" in
+	sniper) threshold=4 ;;
+	bolter) threshold=3 ;;
+	shotgun) threshold=2 ;;
+	nuke) threshold=1 ;;
+esac
+if [ "$round" -lt "$threshold" ]; then
+	printf '{"probe":1,"verdict":"rejected","code":"fixture_failure"}\n'
+	exit 1
+fi
+printf '{"probe":1,"verdict":"accepted","format":"arw","reach":"structural","reason":"analytical_ceiling_unestablished"}\n'
+exit 0
+EOF
+chmod +x "$fake_probe"
+
+result="$case_root/result.jsonl"
+if ! CORRUPTION_READER="$fake_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
+	./corruption-coverage --json --count 4 --master 42 "$fixture" >"$result" 2>"$case_root/stderr"; then
+	fail "a complete four-profile campaign should succeed"
+fi
+
+if [ "$(wc -l <"$result")" -ne 4 ]; then
+	fail "one JSON result should be emitted per required profile"
+fi
+assert_jq "$result" 'select(.profile == "sniper") | .detected == 4 and .survived == 0 and .survivor_rounds == []' "sniper result and replay rounds"
+assert_jq "$result" 'select(.profile == "sniper") | .ci_low == 0.5101091635 and .ci_high == 1' "known 4-of-4 Wilson interval"
+assert_jq "$result" 'select(.profile == "bolter") | .detected == 3 and .survived == 1 and .survivor_rounds == [3]' "bolter result and replay rounds"
+assert_jq "$result" 'select(.profile == "shotgun") | .detected == 2 and .survived == 2 and .survivor_rounds == [2,3]' "shotgun result and replay rounds"
+assert_jq "$result" 'select(.profile == "nuke") | .detected == 1 and .survived == 3 and .survivor_rounds == [1,2,3]' "nuke result and replay rounds"
+assert_jq_slurp "$result" 'all(.[]; .confidence == 0.95 and .trials == 4 and (.ci_low >= 0) and (.ci_high <= 1) and (.precision_target_met == false))' "confidence interval metadata"
+assert_jq_slurp "$result" 'all(.[]; .master == "42" and .round_start == 0 and .control.verdict == "accepted")' "seed, round, and pristine-control evidence"
+
+reject_probe="$case_root/reject-probe"
+cat >"$reject_probe" <<'EOF'
+#!/usr/bin/env bash
+printf '{"probe":1,"verdict":"rejected","code":"bad_control"}\n'
+exit 1
+EOF
+chmod +x "$reject_probe"
+if CORRUPTION_READER="$fake_cr" RAWZ_COVERAGE_PROBE="$reject_probe" \
+	./corruption-coverage --json --count 1 "$fixture" >"$case_root/rejected.out" 2>"$case_root/rejected.err"; then
+	fail "a rejected pristine control must abort the campaign"
+fi
+if ! rg -q 'pristine control' "$case_root/rejected.err"; then
+	fail "a rejected pristine control should be explained"
+fi
+
+error_cr="$case_root/error-corruption-reader"
+cat >"$error_cr" <<'EOF'
+#!/usr/bin/env bash
+exit 2
+EOF
+chmod +x "$error_cr"
+if CORRUPTION_READER="$error_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
+	./corruption-coverage --json --count 1 "$fixture" >"$case_root/tool.out" 2>"$case_root/tool.err"; then
+	fail "a corruption-reader error must abort rather than count as detection"
+fi
+if ! rg -q 'corruption-reader failed' "$case_root/tool.err"; then
+	fail "a corruption-reader failure should be explained"
+fi
+
+noop_cr="$case_root/noop-corruption-reader"
+cat >"$noop_cr" <<'EOF'
+#!/usr/bin/env bash
+set -u
+report=""
+shift 2
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--report) report="$2"; shift 2 ;;
+		*) shift ;;
+	esac
+done
+printf '{"report":1,"item":0,"round":0,"status":"noop","noop":"too_small","emitted":true,"record":{}}\n' >"$report"
+printf 'known-good\n'
+exit 3
+EOF
+chmod +x "$noop_cr"
+if CORRUPTION_READER="$noop_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
+	./corruption-coverage --json --count 1 "$fixture" >"$case_root/noop.out" 2>"$case_root/noop.err"; then
+	fail "a no-op must not enter the statistical denominator"
+fi
+if ! rg -q 'no-op cases cannot enter the denominator' "$case_root/noop.err"; then
+	fail "a refused no-op should explain the denominator rule"
+fi
+
+if [ "$failures" -ne 0 ]; then
+	exit 1
+fi
+echo "corruption-coverage CLI tests passed"

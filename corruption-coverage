@@ -1,0 +1,268 @@
+#!/usr/bin/env bash
+# Deterministic end-to-end corrupt-input detection measurement for rawz.
+set -u
+set -o pipefail
+
+default_count=385
+count="$default_count"
+master="42"
+round_start=0
+json=false
+profiles=(sniper bolter shotgun nuke)
+fixtures=()
+original_args=("$@")
+
+usage() {
+	cat <<'EOF'
+Usage: ./corruption-coverage [options] KNOWN_GOOD_RAW...
+
+Measure rawz rejection rates for corruption-reader's sniper, bolter, shotgun,
+and nuke profiles. The default 385 applied trials per profile bounds the
+worst-case 95% Wilson interval half-width below five percentage points.
+
+Options:
+  --count N         Applied trials per fixture/profile (default: 385)
+  --master SEED     Reproducible corruption-reader master seed (default: 42)
+  --round-start N   First corruption-reader round (default: 0)
+  --json            Emit one JSON object per fixture/profile
+  -h, --help        Show this help
+  --about           Show version and purpose
+
+Environment overrides for testing or development:
+  CORRUPTION_READER    corruption-reader executable
+  RAWZ_COVERAGE_PROBE  rawz full-file coverage probe executable
+EOF
+}
+
+die() {
+	echo "corruption-coverage: $*" >&2
+	exit 2
+}
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--count)
+			[ "$#" -ge 2 ] || die "--count needs a value"
+			count="$2"
+			shift 2
+			;;
+		--master)
+			[ "$#" -ge 2 ] || die "--master needs a value"
+			master="$2"
+			shift 2
+			;;
+		--round-start)
+			[ "$#" -ge 2 ] || die "--round-start needs a value"
+			round_start="$2"
+			shift 2
+			;;
+		--json)
+			json=true
+			shift
+			;;
+		-h|--help)
+			usage
+			exit 0
+			;;
+		--about)
+			echo "corruption-coverage 1: reproducible 95% Wilson corruption-detection measurement"
+			exit 0
+			;;
+		--)
+			shift
+			while [ "$#" -gt 0 ]; do
+				fixtures+=("$1")
+				shift
+			done
+			;;
+		-*) die "unknown option: $1" ;;
+		*)
+			fixtures+=("$1")
+			shift
+			;;
+	esac
+done
+
+case "$count" in
+	''|*[!0-9]*) die "--count must be a positive decimal integer" ;;
+esac
+[ "$count" -gt 0 ] || die "--count must be greater than zero"
+case "$round_start" in
+	''|*[!0-9]*) die "--round-start must be a non-negative decimal integer" ;;
+esac
+[ "${#fixtures[@]}" -gt 0 ] || die "at least one known-good RAW file is required"
+
+# Enter the pinned development environment once for real runs. Tests supply
+# both executable overrides and stay outside Nix.
+if [ "${RAWZ_CORRUPTION_COVERAGE_IN_NIX:-0}" != "1" ] &&
+	{ [ -z "${CORRUPTION_READER:-}" ] || [ -z "${RAWZ_COVERAGE_PROBE:-}" ]; }; then
+	exec nix develop -c env RAWZ_CORRUPTION_COVERAGE_IN_NIX=1 \
+		./corruption-coverage "${original_args[@]}"
+fi
+
+corruption_reader="${CORRUPTION_READER:-corruption-reader}"
+coverage_probe="${RAWZ_COVERAGE_PROBE:-zig-out/bin/rawz-coverage-probe}"
+
+if [ -z "${RAWZ_COVERAGE_PROBE:-}" ]; then
+	zig build coverage-probe -Doptimize=ReleaseFast || die "could not build the rawz coverage probe"
+fi
+command -v "$corruption_reader" >/dev/null 2>&1 || die "corruption-reader executable not found"
+[ -x "$coverage_probe" ] || die "rawz coverage probe not found: $coverage_probe"
+command -v jq >/dev/null 2>&1 || die "jq executable not found"
+command -v sha256sum >/dev/null 2>&1 || die "sha256sum executable not found"
+
+work_dir="$(mktemp -d "${TMPDIR:-/tmp}/rawz-corruption-coverage.XXXXXX")" ||
+	die "could not create private working directory"
+trap 'rm -rf -- "$work_dir"' EXIT
+
+wilson_interval() {
+	awk -v detected="$1" -v trials="$2" 'BEGIN {
+		z = 1.959963984540054;
+		p = detected / trials;
+		denominator = 1 + z * z / trials;
+		center = (p + z * z / (2 * trials)) / denominator;
+		margin = z * sqrt((p * (1 - p) + z * z / (4 * trials)) / trials) / denominator;
+		low = center - margin;
+		high = center + margin;
+		if (low < 0) low = 0;
+		if (high > 1) high = 1;
+		printf "%.10f %.10f %.10f", p, low, high;
+	}'
+}
+
+for fixture in "${fixtures[@]}"; do
+	[ "$fixture" != "-" ] || die "stdin cannot be replayed as a known-good control"
+	[ -f "$fixture" ] || die "known-good file not found: $fixture"
+
+	control_path="$work_dir/control.json"
+	"$coverage_probe" "$fixture" >"$control_path" 2>"$work_dir/control.err"
+	control_status=$?
+	control_json="$(<"$control_path")"
+	if [ "$control_status" -ne 0 ] ||
+		! printf '%s\n' "$control_json" | jq -e '.probe == 1 and .verdict == "accepted"' >/dev/null 2>&1; then
+		echo "corruption-coverage: pristine control was not accepted: $fixture" >&2
+		[ -s "$work_dir/control.err" ] && sed 's/^/  /' "$work_dir/control.err" >&2
+		[ -n "$control_json" ] && printf '  %s\n' "$control_json" >&2
+		exit 1
+	fi
+
+	fixture_sha256="$(sha256sum "$fixture")"
+	fixture_sha256="${fixture_sha256%% *}"
+	fixture_bytes="$(wc -c <"$fixture")"
+	fixture_bytes="${fixture_bytes//[[:space:]]/}"
+
+	if [ "$json" = false ]; then
+		printf 'Fixture: %s\n' "$fixture"
+		printf '  SHA-256: %s  bytes: %s  control: %s/%s\n' \
+			"$fixture_sha256" "$fixture_bytes" \
+			"$(printf '%s\n' "$control_json" | jq -r '.format')" \
+			"$(printf '%s\n' "$control_json" | jq -r '.reach')"
+	fi
+
+	for profile in "${profiles[@]}"; do
+		detected=0
+		survivor_csv=""
+		trial=0
+		while [ "$trial" -lt "$count" ]; do
+			round=$((round_start + trial))
+			report_path="$work_dir/report.jsonl"
+			probe_path="$work_dir/probe.json"
+			: >"$report_path"
+			: >"$probe_path"
+
+			if [ -t 2 ]; then
+				printf '\r  %-8s %d/%d' "$profile" "$((trial + 1))" "$count" >&2
+			fi
+			"$corruption_reader" corrupt "$profile" --master "$master" \
+				--round "$round" --report "$report_path" "$fixture" |
+				"$coverage_probe" - >"$probe_path" 2>"$work_dir/probe.err"
+			pipeline_status=("${PIPESTATUS[@]}")
+			corruption_status="${pipeline_status[0]}"
+			probe_status="${pipeline_status[1]}"
+
+			if [ "$corruption_status" -eq 3 ]; then
+				[ -t 2 ] && printf '\n' >&2
+				echo "corruption-coverage: $profile round $round was a no-op; no-op cases cannot enter the denominator" >&2
+				[ -s "$report_path" ] && sed 's/^/  /' "$report_path" >&2
+				exit 2
+			fi
+			if [ "$corruption_status" -ne 0 ]; then
+				[ -t 2 ] && printf '\n' >&2
+				echo "corruption-coverage: corruption-reader failed for $profile round $round (status $corruption_status)" >&2
+				[ -s "$report_path" ] && sed 's/^/  /' "$report_path" >&2
+				exit 2
+			fi
+			if ! jq -e '.report == 1 and .status == "applied" and .emitted == true' "$report_path" >/dev/null 2>&1; then
+				[ -t 2 ] && printf '\n' >&2
+				die "corruption-reader produced no applied case for $profile round $round"
+			fi
+
+			probe_json="$(<"$probe_path")"
+			case "$probe_status" in
+				0)
+					if ! printf '%s\n' "$probe_json" | jq -e '.probe == 1 and .verdict == "accepted"' >/dev/null 2>&1; then
+						die "coverage probe returned status 0 without an accepted verdict for $profile round $round"
+					fi
+					if [ -n "$survivor_csv" ]; then survivor_csv+=","; fi
+					survivor_csv+="$round"
+					;;
+				1)
+					if ! printf '%s\n' "$probe_json" | jq -e '.probe == 1 and .verdict == "rejected"' >/dev/null 2>&1; then
+						die "coverage probe returned status 1 without a rejected verdict for $profile round $round"
+					fi
+					detected=$((detected + 1))
+					;;
+				*)
+					[ -t 2 ] && printf '\n' >&2
+					echo "corruption-coverage: coverage probe failed for $profile round $round (status $probe_status)" >&2
+					[ -s "$work_dir/probe.err" ] && sed 's/^/  /' "$work_dir/probe.err" >&2
+					exit 2
+					;;
+			esac
+			trial=$((trial + 1))
+		done
+		[ -t 2 ] && printf '\r%*s\r' 32 '' >&2
+
+		survived=$((count - detected))
+		read -r rate ci_low ci_high <<<"$(wilson_interval "$detected" "$count")"
+		if [ "$count" -ge "$default_count" ]; then
+			precision_target_met=true
+		else
+			precision_target_met=false
+		fi
+		survivor_rounds="[$survivor_csv]"
+
+		if [ "$json" = true ]; then
+			jq -nc \
+				--arg fixture "$fixture" \
+				--arg sha256 "$fixture_sha256" \
+				--argjson bytes "$fixture_bytes" \
+				--arg profile "$profile" \
+				--arg master "$master" \
+				--argjson round_start "$round_start" \
+				--argjson trials "$count" \
+				--argjson detected "$detected" \
+				--argjson survived "$survived" \
+				--argjson rate "$rate" \
+				--argjson ci_low "$ci_low" \
+				--argjson ci_high "$ci_high" \
+				--argjson precision_target_met "$precision_target_met" \
+				--argjson survivor_rounds "$survivor_rounds" \
+				--argjson control "$control_json" \
+				'{schema: 1, fixture: $fixture, fixture_sha256: $sha256,
+				  fixture_bytes: $bytes, profile: $profile, master: $master,
+				  round_start: $round_start, trials: $trials, detected: $detected,
+				  survived: $survived, detection_rate: $rate, confidence: 0.95,
+				  ci_low: $ci_low, ci_high: $ci_high, target_half_width: 0.05,
+				  precision_target_met: $precision_target_met,
+				  survivor_rounds: $survivor_rounds, control: $control}'
+		else
+			awk -v profile="$profile" -v detected="$detected" -v trials="$count" \
+				-v rate="$rate" -v low="$ci_low" -v high="$ci_high" \
+				'BEGIN { printf "  %-8s %d/%d detected (%6.2f%%), 95%% Wilson CI [%6.2f%%, %6.2f%%]\n", profile, detected, trials, rate * 100, low * 100, high * 100 }'
+			if [ "$survived" -gt 0 ]; then
+				printf '           survivor rounds: %s (replay with master %s)\n' "$survivor_csv" "$master"
+			fi
+		fi
+	done
+done

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -u
+
+failures=0
+probe="${RAWZ_COVERAGE_PROBE_UNDER_TEST:-zig-out/bin/rawz-coverage-probe}"
+case_root="$(mktemp -d "${TMPDIR:-/tmp}/rawz-coverage-probe-test.XXXXXX")"
+trap 'rm -rf -- "$case_root"' EXIT
+
+printf 'not a TIFF' | "$probe" - >"$case_root/stdin.json" 2>"$case_root/stdin.err"
+status="${PIPESTATUS[1]}"
+if [ "$status" -ne 1 ]; then
+	echo "FAIL: malformed stdin should be a file rejection" >&2
+	failures=$((failures + 1))
+elif ! jq -e '.probe == 1 and .verdict == "rejected" and .code == "malformed_tiff"' \
+	"$case_root/stdin.json" >/dev/null 2>&1; then
+	echo "FAIL: malformed stdin rejection JSON" >&2
+	failures=$((failures + 1))
+fi
+
+printf 'not a TIFF' >"$case_root/input.raw"
+"$probe" "$case_root/input.raw" >"$case_root/file.json" 2>"$case_root/file.err"
+status=$?
+if [ "$status" -ne 1 ]; then
+	echo "FAIL: malformed file should be a file rejection" >&2
+	failures=$((failures + 1))
+fi
+
+"$probe" >"$case_root/usage.out" 2>"$case_root/usage.err"
+status=$?
+if [ "$status" -ne 2 ] || ! rg -q '^Usage:' "$case_root/usage.err"; then
+	echo "FAIL: missing input should be a usage error" >&2
+	failures=$((failures + 1))
+fi
+
+if [ "$failures" -ne 0 ]; then
+	exit 1
+fi
+echo "coverage probe CLI tests passed"

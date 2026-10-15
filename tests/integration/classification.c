@@ -24,10 +24,16 @@ int main(void) {
 		0x00, 0x00, 0x00, 0x00
 	};
 	rawz_format_t format = RAWZ_FORMAT_UNKNOWN;
+	rawz_validation_t validation;
 
 	CHECK(rawz_version() != NULL);
 	CHECK(rawz_classify_buffer(dng, sizeof(dng), &format) == RAWZ_STATUS_OK);
 	CHECK(format == RAWZ_FORMAT_DNG);
+	CHECK(rawz_validate_buffer((const uint8_t*)"not a TIFF", 10, &validation) == RAWZ_STATUS_OK);
+	CHECK(validation.verdict == RAWZ_VERDICT_REJECTED);
+	CHECK(validation.rejection == RAWZ_REJECTION_MALFORMED_TIFF);
+	CHECK(rawz_validate_buffer(NULL, 0, &validation) == RAWZ_STATUS_INVALID_ARGUMENT);
+	CHECK(rawz_validate_buffer(dng, sizeof(dng), NULL) == RAWZ_STATUS_INVALID_ARGUMENT);
 	CHECK(rawz_classify_buffer(NULL, 0, &format) == RAWZ_STATUS_INVALID_ARGUMENT);
 	CHECK(rawz_classify_buffer(dng, sizeof(dng), NULL) == RAWZ_STATUS_INVALID_ARGUMENT);
 

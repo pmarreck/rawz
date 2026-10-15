@@ -31,6 +31,14 @@ else
 	failures=$((failures + 1))
 fi
 
+echo "==> corruption coverage CLI"
+if nix develop -c bash -c 'zig build coverage-probe -Doptimize=ReleaseSafe && tests/cli/coverage_probe && tests/cli/corruption_coverage'; then
+	echo "    ok"
+else
+	echo "    FAIL: coverage probe or corruption coverage CLI" >&2
+	failures=$((failures + 1))
+fi
+
 if [ -n "${RAWZ_TEST_NEF_14BIT:-}${RAWZ_TEST_ARW2:-}" ]; then
 	echo "==> external CC0 RAW fixture controls"
 	if nix develop -c zig build test 2>&1; then

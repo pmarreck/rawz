@@ -67,6 +67,29 @@ pub fn build(b: *std.Build) void {
     if (b.args) |args| run_cmd.addArgs(args);
     b.step("run", "Run the CLI").dependOn(&run_cmd.step);
 
+    // Internal full-file probe used only by ./corruption-coverage. Keeping it
+    // off the default install prevents measurement tooling from entering the
+    // shipped rawz package closure.
+    const coverage_probe_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .strip = optimize != .Debug,
+        .link_libc = true,
+    });
+    coverage_probe_mod.addCSourceFile(.{
+        .file = b.path("tests/coverage_probe.c"),
+        .flags = &.{ "-std=c11", "-Wall", "-Wextra", "-Wpedantic", "-Werror" },
+    });
+    coverage_probe_mod.addIncludePath(b.path("include"));
+    coverage_probe_mod.linkLibrary(lib);
+    const coverage_probe = b.addExecutable(.{
+        .name = "rawz-coverage-probe",
+        .root_module = coverage_probe_mod,
+    });
+    const install_coverage_probe = b.addInstallArtifact(coverage_probe, .{});
+    b.step("coverage-probe", "Build the internal corruption coverage probe")
+        .dependOn(&install_coverage_probe.step);
+
     const test_mod = b.createModule(.{
         .root_source_file = b.path("src/lib.zig"),
         .target = target,

@@ -5,6 +5,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
 
+    # Measurement-only tool used by ./corruption-coverage. It is intentionally
+    # absent from the shipped rawz derivation and production closure.
+    corruption-reader = {
+      url = "git+ssh://git@github.com/pmarreck/corruption_reader?ref=yolo&rev=21ee639537644c81ada3e780c19608817dda92ca";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Private transitive dependency (rawz -> tiffz -> jpegz -> libjxlz).
     # Nix fetches it through the caller's SSH credentials, then seeds Zig's
     # cache. The revision must match jpegz's build.zig.zon pin.
@@ -14,7 +21,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, libjxlz-src }:
+  outputs = { self, nixpkgs, flake-utils, libjxlz-src, corruption-reader }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -131,7 +138,13 @@
         };
 
         devShells.default = pkgs.mkShell {
-          packages = [ zigPkg pkgs.hyperfine pkgs.jq pkgs.coreutils ];
+          packages = [
+            zigPkg
+            pkgs.hyperfine
+            pkgs.jq
+            pkgs.coreutils
+            corruption-reader.packages.${system}.default
+          ];
         };
       });
 }

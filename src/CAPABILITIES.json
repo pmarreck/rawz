@@ -67,8 +67,23 @@
       "rawspeed_baseline_accepted": true,
       "rawspeed_identity": "darktable 5.6.0/rawspeed black-box decode",
       "rawspeed_binary_sha256": "763c9b14ab75e4e326098b8fd8cfef5e648b614d2fc1ee302dcdee1498c4883f",
+      "whole_file_corruption": {
+        "corruption_reader_commit": "21ee639537644c81ada3e780c19608817dda92ca",
+        "master": "42",
+        "round_start": 0,
+        "trials_per_profile": 385,
+        "confidence": 0.95,
+        "sniper_detected": 7,
+        "sniper_ci": [0.0088345738, 0.0370490593],
+        "bolter_detected": 31,
+        "bolter_ci": [0.0573031759, 0.1120240842],
+        "shotgun_detected": 119,
+        "shotgun_ci": [0.2650062383, 0.3569476540],
+        "nuke_detected": 364,
+        "nuke_ci": [0.9180572364, 0.9640503481]
+      },
       "mktp_assessment": "structural: the packet grammar leaves all 98 delta bits per 128-bit packet unconstrained and the remaining checked relations do not establish the format-wide ceiling",
-      "qualification": "The exact real-file row covers one CC0 Sony ILCE-7M3 14-bit compressed ARW and one deterministic one-byte EOF control. The 76.5625% unconstrained-bit share is a check-bound lower bound, not a format-wide unavoidable miss rate."
+      "qualification": "The exact real-file row covers one CC0 Sony ILCE-7M3 14-bit compressed ARW, one deterministic one-byte EOF control, and four seeded whole-file corruption profiles with 95% Wilson intervals. Whole-file rates include non-payload regions and do not establish an analytical ceiling or independent-decoder false-negative rate. The 76.5625% unconstrained-bit share is a check-bound lower bound, not a format-wide unavoidable miss rate."
     },
     "uncompressed_14bit_words": {
       "scope": "big-endian 14-bit Nikon CFA samples stored in contiguous 16-bit words; high-bit headroom is checked but black/white level metadata is unavailable",
