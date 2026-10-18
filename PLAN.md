@@ -4,6 +4,8 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
+- [x] Adopt published TIFFZ `35536193` carrying JPEGZ `85455eb` through one parser instance; complete local gates and exact Mechatron Prime CI passed, and producer/consumer replies were delivered (done 2026-10-17 22:19 EDT; `43d6dd1`; context: `docs/plan_context/provider-hold-raw-replay.md`).
+
 - [x] Add `./corruption-coverage` using corruption-reader's consumer CLI for reproducible `sniper`, `bolter`, `shotgun`, and `nuke` measurements with pristine gates, survivor replay, and 95% Wilson intervals; run 385 cases/profile against the exact Sony ARW2 control (done 2026-10-15 13:09 EDT; `a52be01`; evidence: `docs/coverage-evidence/arw2-full-file-corruption-2026-10-15.md`).
 
 - [x] Reconcile every direct, transitive, and toolchain dependency pin to current upstream heads through JP2Z `91264891`, JPEGZ `f1a255a`, TIFFZ `e9564e4`, Nixpkgs `8edc0c72`, flake-utils `11707dc2`, nix-systems `d36eeed1`, LIBJXLZ `93b29e86`, and Zig 0.16.0; complete local gates passed and Mechatron Prime passed `65255d5` in 44 seconds (done 2026-10-10 20:34 EDT).
@@ -20,7 +22,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
-	- [x] Correct Nikon CFA-IFD traversal budgets to named structural reach with a valid inclusive-cap traversal, the same fixture under a lower budget, and a malformed offset that remains a file defect (done 2026-10-10 02:44 EDT; `e463c07` in `0f982f5`, exact Mechatron Prime PASS in 42s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
 	- [x] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).
 	- [x] Forward-pin TIFFZ separately from accepted `618d38d` evidence to published `abc2beb2`, regenerate its dependency hash, and run complete local gates before publication (done 2026-10-10 02:49 EDT; `49d35c9`, Mechatron Prime PASS in 43s).
     - [ ] Ship DNG/CR2/compressed-NEF sensor syntax validation and independent per-variant coverage.

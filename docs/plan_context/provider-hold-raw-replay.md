@@ -23,6 +23,13 @@ still at `93b29e86281ea4ba9c681f4879318c87e8a800a4`.
 The resulting rawz Zig package identity is
 `rawz-0.1.0-sAg3OmgVAwAsjRqkxIoSML08yZaNOSIKCGbRwfhPDz84`.
 
+The complete `./test && ./build` gate passed under the bounded local build
+runner. Mechatron Prime CI, the project's continuous-integration service,
+passed published rawz `43d6dd16612a971ec9b8a93f848ca74309888954` in 1m58s.
+The exact published URL independently reproduced the rawz package identity.
+JPEGZ and Validate received the revisions, hashes, passing gates, and unchanged
+coverage qualifications on 2026-10-17.
+
 Validate acknowledged the four-profile Sony ARW2 scorecard on 2026-10-15 and
 recorded its exact fixture, counts, Wilson intervals, and limitations as
 producer-measured evidence. Successful ARW2 syntax remains structural.
