@@ -1,6 +1,39 @@
 # RAW replay boundary under the JPEG provider hold
 
-The dependency-convergence graph published on 2026-10-10 is producer evidence only until the consumer's JPEG provider hold is explicitly lifted. The hold forbids consumer repins, builds, fetches, and alternate JPEG routes. It does not block rawz-owned validation that uses only the already permitted `tiffz-parser` surface.
+## Current adoption order
+
+The JPEG provider hold was released for dependency adoption on 2026-10-15.
+Freshness checks remain required. TIFFZ publishes the single JPEGZ dependency;
+rawz and Validate consume that TIFFZ instance without adding a direct JPEGZ
+pin. JPEGZ's separate non-luma sampling research remains held.
+
+The 2026-10-17 reconciliation selects published TIFFZ
+`35536193d75fbc4ab1ff18bafffe72753c16f9b7`, Zig package
+`tiffz-0.1.0-qutJAaHe0QFf7-gwH8YIUfkiUYuKvV1S2qUXP34r6-pA`.
+It carries JPEGZ `85455ebc1fa284d65581c6501cb641b3ac965997`, package
+`jpegz-0.1.0-staw4HATEwC0XcJnIkmt6EbZ1qkGp4rbLrT2QLOMznWT`.
+rawz continues to import only TIFFZ's parser module. No new sensor validation
+or coverage promotion is implied by this dependency update.
+
+The regenerated Nix dependency cache is
+`sha256-vzhZ1hTUQGSYecbVbesSCPCYIWfQx53xB2M74QA1p10=`. It was measured by
+rebuilding the changed fixed-output derivation against its previous real hash.
+The builder verified one JPEGZ package and one LIBJXLZ package, with LIBJXLZ
+still at `93b29e86281ea4ba9c681f4879318c87e8a800a4`.
+The resulting rawz Zig package identity is
+`rawz-0.1.0-sAg3OmgVAwAsjRqkxIoSML08yZaNOSIKCGbRwfhPDz84`.
+
+Validate acknowledged the four-profile Sony ARW2 scorecard on 2026-10-15 and
+recorded its exact fixture, counts, Wilson intervals, and limitations as
+producer-measured evidence. Successful ARW2 syntax remains structural.
+
+## Historical hold boundary
+
+The dependency-convergence graph published on 2026-10-10 was producer evidence
+while the consumer's JPEG provider hold remained active. That hold forbade
+consumer repins, builds, fetches, and alternate JPEG routes. It permitted
+rawz-owned validation using the already available `tiffz-parser` surface. The
+receipts and replay matrix below preserve that historical state.
 
 ## Preserved producer receipts
 

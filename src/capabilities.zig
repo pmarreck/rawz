@@ -52,7 +52,7 @@ test "capability matrix is complete, honest, and internally consistent" {
     try std.testing.expectEqualStrings("clean", closure.get("status").?.string);
     try std.testing.expectEqualStrings("tiffz-parser", closure.get("module").?.string);
     try std.testing.expectEqualStrings(
-        "e9564e4f11c597f858beb4d113761ea478e98d77",
+        "35536193d75fbc4ab1ff18bafffe72753c16f9b7",
         closure.get("tiffz_commit").?.string,
     );
 

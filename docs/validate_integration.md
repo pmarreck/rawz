@@ -93,7 +93,7 @@ use top-level metadata offsets.
 
 ## Production closure gate
 
-rawz pins tiffz commit `e9564e4f11c597f858beb4d113761ea478e98d77` and
+rawz pins tiffz commit `35536193d75fbc4ab1ff18bafffe72753c16f9b7` and
 imports its `tiffz-parser` module. The named module contains the header, source,
 limits, IFD, tag, and decoder traversal surface without compression codecs.
 
