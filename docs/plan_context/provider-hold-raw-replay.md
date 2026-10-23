@@ -7,6 +7,33 @@ Freshness checks remain required. TIFFZ publishes the single JPEGZ dependency;
 rawz and Validate consume that TIFFZ instance without adding a direct JPEGZ
 pin. JPEGZ's separate non-luma sampling research remains held.
 
+### 2026-10-23 adoption
+
+The current published TIFFZ candidate is
+`d3b993c7a6566352d1ea7bbbdb9b6975946b9dd7`, package
+`tiffz-0.1.0-qutJAQft0QHvRb-45d024sZUeu8dHG5o8CYOYRvMCXAO`.
+It carries JPEGZ `860654d19f43e76c70ca084ee96df481fcaf959e`, package
+`jpegz-0.1.0-staw4GpwEwC4WKF47FL1ts63Dv0jgyHzI5qabwLRdQlp`,
+JP2Z `a7cc185ca16a0c06a08a2d995295814d6347fb6d`, and LERCZ
+`39703ee5aeb3829899d63a15888f715dad054832`.
+The rawz Nix dependency cache is
+`sha256-If26PkmQmqn0yOlghrbGLcnN8uEpcXphH87hOHiyO3M=`, measured from
+a real mismatch against the prior cache hash.
+
+This candidate contains TIFFZ's NRW complete-strip padding fix `be1e8cbc`.
+That fix runs in the full TIFFZ strip validator used by the consumer; rawz's
+codec-free classifier does not decode those strips. JPEGZ adds valid multi-scan
+sequential decoding and typed entropy findings, including code 62. rawz adds
+no direct JPEGZ import or finding-code translation.
+
+TIFFZ confirmed on 2026-10-23 that this candidate should be adopted while its
+next JPEGZ update is prepared. JPEGZ's published `ca500f9` recovery change and
+the in-progress all-zero-padding warning code 63 will travel through a later
+tested TIFFZ release. They are not part of this adoption. No stale-pin override
+is introduced, and consumers still own their freshness acceptance.
+
+### 2026-10-17 adoption receipt
+
 The 2026-10-17 reconciliation selects published TIFFZ
 `35536193d75fbc4ab1ff18bafffe72753c16f9b7`, Zig package
 `tiffz-0.1.0-qutJAaHe0QFf7-gwH8YIUfkiUYuKvV1S2qUXP34r6-pA`.

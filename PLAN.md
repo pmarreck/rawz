@@ -4,6 +4,8 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 ## In Progress
 
+- [ ] Unblock the consumer candidate by reconciling the latest published TIFFZ/JPEGZ graph, regenerating exact hashes, passing complete local gates and CI, and delivering the current rawz revision.
+
 - [x] Adopt published TIFFZ `35536193` carrying JPEGZ `85455eb` through one parser instance; complete local gates and exact Mechatron Prime CI passed, and producer/consumer replies were delivered (done 2026-10-17 22:19 EDT; `43d6dd1`; context: `docs/plan_context/provider-hold-raw-replay.md`).
 
 - [x] Add `./corruption-coverage` using corruption-reader's consumer CLI for reproducible `sniper`, `bolter`, `shotgun`, and `nuke` measurements with pristine gates, survivor replay, and 95% Wilson intervals; run 385 cases/profile against the exact Sony ARW2 control (done 2026-10-15 13:09 EDT; `a52be01`; evidence: `docs/coverage-evidence/arw2-full-file-corruption-2026-10-15.md`).
@@ -34,6 +36,8 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
     - [ ] Add the ISO BMFF container before Canon CR3 CRX syntax validation and coverage.
 
 ## Next
+
+- [ ] Conform build, run, and test commands to the cross-platform build architecture with target/profile products, direct host entrypoints, Nix/native graph parity, five-platform scope, and failure-safe publication controls (context: `docs/plan_context/cross-platform-build.md`).
 
 - [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
 - [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = an unexplained survivor until legal ambiguity is established. **Run it, never read it** — cleanroom.
