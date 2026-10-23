@@ -32,6 +32,14 @@ if [ "$status" -ne 2 ] || ! rg -q '^Usage:' "$case_root/usage.err"; then
 	failures=$((failures + 1))
 fi
 
+printf 'II\052\000\010\000\000\000\377\377' >"$case_root/over-budget.raw"
+"$probe" "$case_root/over-budget.raw" >"$case_root/budget.out" 2>"$case_root/budget.err"
+status=$?
+if [ "$status" -ne 2 ] || [ -s "$case_root/budget.out" ]; then
+	echo "FAIL: parser work limits must stop measurement without a rejected verdict" >&2
+	failures=$((failures + 1))
+fi
+
 if [ "$failures" -ne 0 ]; then
 	exit 1
 fi

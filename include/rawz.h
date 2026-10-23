@@ -61,7 +61,7 @@ typedef enum rawz_rejection_t {
 	RAWZ_REJECTION_NONE = 0,
 	RAWZ_REJECTION_MALFORMED_TIFF = 1,
 	RAWZ_REJECTION_INVALID_SEMANTIC_TAG = 2,
-	RAWZ_REJECTION_LIMIT_EXCEEDED = 3,
+	RAWZ_REJECTION_LIMIT_EXCEEDED = 3, /* Legacy value; work limits use call status. */
 	RAWZ_REJECTION_UNSUPPORTED_TIFF_FEATURE = 4,
 	RAWZ_REJECTION_NOT_CAMERA_RAW = 5,
 	RAWZ_REJECTION_SENSOR = 6
@@ -112,7 +112,9 @@ rawz_status_t rawz_classify_buffer(
 );
 
 /* Runs all full-file checks reachable for this RAW variant. A malformed input
- * is a successful call with verdict REJECTED; status reports API/tool errors. */
+ * is a successful call with verdict REJECTED; status reports API/tool errors.
+ * LIMIT_EXCEEDED is an incomplete check, not a file verdict. Writes
+ * out_validation only on OK. */
 rawz_status_t rawz_validate_buffer(
 	const uint8_t* data,
 	size_t len,

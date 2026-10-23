@@ -91,6 +91,26 @@ The admitted 14-bit variant requires a width divisible by 32, checks the exact
 Payload failure offsets are relative to the returned strip; locator failures
 use top-level metadata offsets.
 
+## Consumer verdict and reach contract
+
+Validate's committed `TERMINOLOGY.md` at
+`c4f0a9e61953f9ab63e6c7dd5f684b035c1169d1` is the reference for this
+mapping. The local result vocabulary does not authorize new consumer statuses.
+
+| rawz evidence | Consumer interpretation |
+|---|---|
+| `fail` plus typed code, region, and offset | A file finding; translate its checked region base into host coordinates. |
+| `structural(reason)` | Reach on the checks completed so far; this alone produces no WARN, INFO, or corruption finding. |
+| Local payload `full` | The supplied check set passed; whole-file depth still requires the consumer's committed integrity/coverage evidence. |
+| C call status `RAWZ_STATUS_LIMIT_EXCEEDED` | Validation stopped before a file result was available; the output result is untouched, and a coverage campaign aborts. |
+
+The consumer owns `structural`, `mktp`, and `full` depth admission, the MKTP
+ledger, display labels, and known-defect policy. A syntax-to-end pass or a
+low measured mutation rate does not independently establish MKTP. Rawz supplies
+the exact-variant checks and evidence; a work ceiling is never counted as a
+detected corruption. The C ABI retains its existing numeric status and finding
+codes, including legacy reserved rejection values.
+
 ## Production closure gate
 
 rawz pins tiffz commit `d3b993c7a6566352d1ea7bbbdb9b6975946b9dd7` and

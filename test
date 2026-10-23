@@ -32,7 +32,7 @@ else
 fi
 
 echo "==> corruption coverage CLI"
-if nix develop -c bash -c 'zig build coverage-probe -Doptimize=ReleaseSafe && tests/cli/coverage_probe && tests/cli/corruption_coverage'; then
+if nix build ".#checks.${system}.coverage-cli" --no-link 2>&1; then
 	echo "    ok"
 else
 	echo "    FAIL: coverage probe or corruption coverage CLI" >&2

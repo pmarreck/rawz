@@ -44,7 +44,8 @@ pub const ReachReason = enum(u16) {
     analytical_ceiling_unestablished = 8,
 };
 
-/// A direct mapping surface for Validate: full, structural, or fail.
+/// Local sensor outcome. Consumers keep typed file findings separate from
+/// reach and apply their whole-file evidence gates before promoting depth.
 pub const Result = union(enum) {
     full: void,
     structural: ReachReason,

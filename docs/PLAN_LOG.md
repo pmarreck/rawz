@@ -86,3 +86,8 @@ Completed PLAN.md items retired by plan-retire, oldest retirement first.
 ## Retired 2026-10-17
 
 - [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT… › Deliver sensor-data checks Validate needs for full-depth RAW…] Correct Nikon CFA-IFD traversal budgets to named structural reach with a valid inclusive-cap traversal, the same fixture under a lower budget, and a malformed offset that remains a file defect (done 2026-10-10 02:44 EDT; `e463c07` in `0f982f5`, exact Mechatron Prime PASS in 42s; context: `docs/mktp-research/raw-sensor-variants-2026-10-10.md`).
+
+## Retired 2026-10-23
+
+- [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT… › Deliver sensor-data checks Validate needs for full-depth RAW…] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).
+- [x] [In Progress › **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT… › Deliver sensor-data checks Validate needs for full-depth RAW…] Forward-pin TIFFZ separately from accepted `618d38d` evidence to published `abc2beb2`, regenerate its dependency hash, and run complete local gates before publication (done 2026-10-10 02:49 EDT; `49d35c9`, Mechatron Prime PASS in 43s).

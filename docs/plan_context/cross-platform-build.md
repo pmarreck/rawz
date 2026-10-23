@@ -7,8 +7,10 @@ The queued migration adopts the shared cross-platform build convention read on
 
 - `./build` always builds the default Nix package. Its parsed `--debug` and
   `--test` modes are not passed to the native graph.
-- Direct builds and coverage tests share `zig-out/bin` across targets and
-  profiles. There is no platform-specific command publication.
+- Direct builds share `zig-out/bin` across targets and profiles. There is no
+  platform-specific command publication. Coverage CLI checks now build their
+  own probe in isolated Nix derivations; direct development builds still need
+  the target/profile migration.
 - The flake declares three native Nix systems. Windows cross-build outputs and
   an explicit five-platform command contract are absent.
 - `build.zig` already owns the Zig library and C CLI graph and remains the

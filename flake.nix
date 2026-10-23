@@ -104,6 +104,29 @@
         checks = {
           build = self.packages.${system}.default;
           production-closure = self.packages.${system}.default;
+          coverage-cli = pkgs.stdenv.mkDerivation {
+            pname = "${pname}-coverage-cli-test";
+            inherit version;
+            src = ./.;
+            nativeBuildInputs = [ zigPkg pkgs.bash pkgs.jq pkgs.ripgrep pkgs.coreutils pkgs.gawk ];
+            dontConfigure = true;
+            dontFixup = true;
+            buildPhase = ''
+              export HOME=$TMPDIR
+              ${depSetup}
+              ${pkgs.lib.optionalString isDarwin "unset NIX_CFLAGS_COMPILE NIX_LDFLAGS"}
+              patchShebangs corruption-coverage tests/cli/coverage_probe tests/cli/corruption_coverage
+              zig build coverage-probe -Doptimize=ReleaseSafe
+              failures=0
+              if tests/cli/coverage_probe; then :; else failures=$((failures + 1)); fi
+              if tests/cli/corruption_coverage; then :; else failures=$((failures + 1)); fi
+              [ "$failures" -eq 0 ] || exit 1
+            '';
+            installPhase = ''
+              mkdir -p $out
+              echo "coverage CLI tests passed" > $out/result
+            '';
+          };
           test = pkgs.stdenv.mkDerivation {
             pname = "${pname}-test";
             inherit version;

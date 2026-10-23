@@ -52,5 +52,13 @@ evidence remains a separate requirement.
 
 Operational failures never count as detections. corruption-reader errors,
 no-op reports, malformed probe output and probe failures abort the campaign.
+Parser work limits return the existing `RAWZ_STATUS_LIMIT_EXCEEDED` call
+status without writing a verdict; the probe exits 2 and the campaign produces
+no score for that profile.
 The internal probe is a C consumer of `rawz_validate_buffer`, so the
 measurement exercises the same public ABI available to external consumers.
+
+`./test` runs the probe and campaign regressions through the sandboxed Nix
+`checks.<system>.coverage-cli` target. Mechatron Prime CI runs this target too.
+Each check builds its own ReleaseSafe probe rather than reusing a shared
+`zig-out` product or a command found on PATH.

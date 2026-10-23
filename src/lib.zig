@@ -158,6 +158,7 @@ export fn rawz_validate_buffer(
             error.OutOfMemory => .out_of_memory,
             error.Io => .io,
             error.Internal => .internal,
+            error.WorkLimitExceeded => .limit_exceeded,
         };
     };
     output.* = validationForC(result);

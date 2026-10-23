@@ -6,3 +6,4 @@
 checks.x86_64-linux.build
 checks.x86_64-linux.test
 checks.x86_64-linux.production-closure
+checks.x86_64-linux.coverage-cli

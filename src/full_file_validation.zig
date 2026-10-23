@@ -38,6 +38,7 @@ pub const Error = error{
     OutOfMemory,
     Io,
     Internal,
+    WorkLimitExceeded,
 };
 
 /// Route a complete TIFF-family RAW through every first-party check that rawz
@@ -47,7 +48,7 @@ pub fn validate(allocator: std.mem.Allocator, bytes: []const u8) Error!Result {
     const format = tiff_adapter.classifyBuffer(allocator, bytes) catch |err| switch (err) {
         error.MalformedTiff => return rejectContainer(.malformed_tiff),
         error.InvalidSemanticTag => return rejectContainer(.invalid_semantic_tag),
-        error.LimitExceeded => return rejectContainer(.limit_exceeded),
+        error.LimitExceeded => return error.WorkLimitExceeded,
         error.UnsupportedTiffFeature => return rejectContainer(.unsupported_tiff_feature),
         error.OutOfMemory => return error.OutOfMemory,
         error.Io => return error.Io,
@@ -198,6 +199,18 @@ test "full-file routing accepts one pristine RAW and rejects container and senso
         try validate(std.testing.allocator, &invalid_packet),
     );
 
+    try std.testing.expectEqual(
+        Result{ .rejected = .{ .container = .malformed_tiff } },
+        try validate(std.testing.allocator, "not a TIFF"),
+    );
+}
+
+test "parser work limits stop validation without becoming file rejections" {
+    const over_budget = "II\x2a\x00\x08\x00\x00\x00\xff\xff";
+    try std.testing.expectError(
+        error.WorkLimitExceeded,
+        validate(std.testing.allocator, over_budget),
+    );
     try std.testing.expectEqual(
         Result{ .rejected = .{ .container = .malformed_tiff } },
         try validate(std.testing.allocator, "not a TIFF"),

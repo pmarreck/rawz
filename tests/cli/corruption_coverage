@@ -28,12 +28,20 @@ assert_jq_slurp() {
 	fi
 }
 
+write_adapter() {
+	local target="$1"
+	{
+		printf '#!%s\n' "$BASH"
+		cat
+	} >"$target" || return 1
+	chmod +x "$target"
+}
+
 fixture="$case_root/known-good.ARW"
 printf 'known-good\n' >"$fixture"
 
 fake_cr="$case_root/corruption-reader"
-cat >"$fake_cr" <<'EOF'
-#!/usr/bin/env bash
+write_adapter "$fake_cr" <<'EOF'
 set -u
 profile="${2:-}"
 round=0
@@ -50,11 +58,9 @@ done
 printf '{"report":1,"item":0,"round":%s,"status":"applied","noop":null,"emitted":true,"record":{}}\n' "$round" >"$report"
 printf '%s:%s\n' "$profile" "$round"
 EOF
-chmod +x "$fake_cr"
 
 fake_probe="$case_root/rawz-coverage-probe"
-cat >"$fake_probe" <<'EOF'
-#!/usr/bin/env bash
+write_adapter "$fake_probe" <<'EOF'
 set -u
 if [ "${1:-}" != "-" ]; then
 	printf '{"probe":1,"verdict":"accepted","format":"arw","reach":"structural","reason":"analytical_ceiling_unestablished"}\n'
@@ -75,7 +81,6 @@ fi
 printf '{"probe":1,"verdict":"accepted","format":"arw","reach":"structural","reason":"analytical_ceiling_unestablished"}\n'
 exit 0
 EOF
-chmod +x "$fake_probe"
 
 result="$case_root/result.jsonl"
 if ! CORRUPTION_READER="$fake_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
@@ -95,12 +100,10 @@ assert_jq_slurp "$result" 'all(.[]; .confidence == 0.95 and .trials == 4 and (.c
 assert_jq_slurp "$result" 'all(.[]; .master == "42" and .round_start == 0 and .control.verdict == "accepted")' "seed, round, and pristine-control evidence"
 
 reject_probe="$case_root/reject-probe"
-cat >"$reject_probe" <<'EOF'
-#!/usr/bin/env bash
+write_adapter "$reject_probe" <<'EOF'
 printf '{"probe":1,"verdict":"rejected","code":"bad_control"}\n'
 exit 1
 EOF
-chmod +x "$reject_probe"
 if CORRUPTION_READER="$fake_cr" RAWZ_COVERAGE_PROBE="$reject_probe" \
 	./corruption-coverage --json --count 1 "$fixture" >"$case_root/rejected.out" 2>"$case_root/rejected.err"; then
 	fail "a rejected pristine control must abort the campaign"
@@ -110,11 +113,9 @@ if ! rg -q 'pristine control' "$case_root/rejected.err"; then
 fi
 
 error_cr="$case_root/error-corruption-reader"
-cat >"$error_cr" <<'EOF'
-#!/usr/bin/env bash
+write_adapter "$error_cr" <<'EOF'
 exit 2
 EOF
-chmod +x "$error_cr"
 if CORRUPTION_READER="$error_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
 	./corruption-coverage --json --count 1 "$fixture" >"$case_root/tool.out" 2>"$case_root/tool.err"; then
 	fail "a corruption-reader error must abort rather than count as detection"
@@ -123,9 +124,25 @@ if ! rg -q 'corruption-reader failed' "$case_root/tool.err"; then
 	fail "a corruption-reader failure should be explained"
 fi
 
+error_probe="$case_root/error-probe"
+write_adapter "$error_probe" <<'EOF'
+if [ "${1:-}" != "-" ]; then
+	printf '{"probe":1,"verdict":"accepted","format":"arw","reach":"structural"}\n'
+	exit 0
+fi
+while IFS= read -r line; do :; done
+exit 2
+EOF
+if CORRUPTION_READER="$fake_cr" RAWZ_COVERAGE_PROBE="$error_probe" \
+	./corruption-coverage --json --count 1 "$fixture" >"$case_root/probe-error.out" 2>"$case_root/probe-error.err"; then
+	fail "a probe resource error must abort rather than count as detection"
+fi
+if [ -s "$case_root/probe-error.out" ] || ! rg -q 'coverage probe failed' "$case_root/probe-error.err"; then
+	fail "a probe resource error must produce no coverage result"
+fi
+
 noop_cr="$case_root/noop-corruption-reader"
-cat >"$noop_cr" <<'EOF'
-#!/usr/bin/env bash
+write_adapter "$noop_cr" <<'EOF'
 set -u
 report=""
 shift 2
@@ -139,7 +156,6 @@ printf '{"report":1,"item":0,"round":0,"status":"noop","noop":"too_small","emitt
 printf 'known-good\n'
 exit 3
 EOF
-chmod +x "$noop_cr"
 if CORRUPTION_READER="$noop_cr" RAWZ_COVERAGE_PROBE="$fake_probe" \
 	./corruption-coverage --json --count 1 "$fixture" >"$case_root/noop.out" 2>"$case_root/noop.err"; then
 	fail "a no-op must not enter the statistical denominator"

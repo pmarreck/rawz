@@ -16,7 +16,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 	- [x] Preserve the held rawz/TIFFZ/JPEGZ/JP2Z producer receipts and send Validate an exact replay matrix for RAW-only fixes that work with its permitted pins (done 2026-10-10 21:37 EDT; context: `docs/plan_context/provider-hold-raw-replay.md`).
 	- [x] Publish the exact launch-subset handoff for compressed Nikon version 0x46 and Pentax compression 65535, including consumer reach, current fixtures/profiles, specificity, residuals, and the actual ARW2 locator state (done 2026-10-14 15:34 EDT; evidence: `docs/coverage-evidence/raw-launch-subset-2026-10-14.md`).
 	- [ ] After the Sony lane, define and deliver the first independently testable Panasonic residual/precision rule with paired pristine and malformed controls.
-	- [ ] Reconcile rawz sensor-result vocabulary with Validate's published typed-finding and reach contract after Validate identifies the candidate carrying the 2026-10-14 verdict terminology; do not introduce unpublished statuses.
+	- [x] Reconcile sensor results with Validate's committed typed-finding and reach contract; preserve numeric statuses and prevent parser work limits from becoming corrupt-file verdicts (done 2026-10-23 14:48 EDT; context: `docs/validate_integration.md`).
 
 - [x] Reconcile the exact-variant RAW plan against published Canon/DNG/Nikon evidence, then correct the Nikon D300 14-bit lossless-compressed version-0x46 claim red-first with the exact CC0 original, a truncated malformed control, and independently attributable corpus evidence (done 2026-10-10 13:36 EDT).
 
@@ -24,8 +24,6 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 
 - [ ] **Mecha Validate v1 RAW gate** (started 2026-08-05 00:08 EDT).
   - [ ] Deliver sensor-data checks Validate needs for full-depth RAW promotion, reporting each family by exact SHA and measured coverage (context: `docs/plan_context/sensor_data_checks.md`).
-	- [x] Repin the next-candidate graph from TIFFZ `4e6d9c31` to published `618d38d`, regenerate only mechanically required dependency hashes, and run complete local gates while preserving the Nikon packet (done 2026-10-10 02:44 EDT; `0f982f5`, Mechatron Prime PASS in 42s).
-	- [x] Forward-pin TIFFZ separately from accepted `618d38d` evidence to published `abc2beb2`, regenerate its dependency hash, and run complete local gates before publication (done 2026-10-10 02:49 EDT; `49d35c9`, Mechatron Prime PASS in 43s).
     - [ ] Ship DNG/CR2/compressed-NEF sensor syntax validation and independent per-variant coverage.
       - [x] Keep DNG CFA Compression 7 in TIFFZ: the synthetic single-component JPEGZ path shipped in TIFFZ `b38c2f47` and is present in the full TIFFZ `abc2beb2` commit that also supplies rawz's parser-only pin; a real camera-DNG scorecard remains consumer evidence, not a rawz implementation (reconciled 2026-10-10 13:05 EDT).
       - [x] Recover the Canon provider seam without bypassing the provider hold: JPEGZ `6ef766c` validates the EOS 20D two-component 12-bit SOF3 stream through EOI, both components use 1x1 sampling, and TIFFZ `abc2beb2` contains the repin; rawz's exact-range locator was already delivered (reconciled 2026-10-10 13:05 EDT).
@@ -38,6 +36,7 @@ Completed work is retained in [`docs/PLAN_LOG.md`](docs/PLAN_LOG.md).
 ## Next
 
 - [ ] Conform build, run, and test commands to the cross-platform build architecture with target/profile products, direct host entrypoints, Nix/native graph parity, five-platform scope, and failure-safe publication controls (context: `docs/plan_context/cross-platform-build.md`).
+	- [x] Bind coverage CLI regressions to their sandbox-built ReleaseSafe probe and include the same check in the complete test runner and exact-commit CI manifest (done 2026-10-23 14:48 EDT).
 
 - [ ] **M5 — corpus.** `raw.pixls.us` (CC0, purpose-built for RAW software testing) is the primary source — **verify license terms at fetch time**. Cover the axes that matter: compression variant, bit depth, CFA vs X-Trans. darktable **cannot generate** RAW, only read it.
 - [ ] **M6 — differential oracle.** darktable 5.6.0 is installed (79 makers / 1,389 models via rawspeed). Mutate known-good RAW; compare rawz's verdict to rawspeed's decode. *rawspeed rejects + we pass* = a gap worth closing. Both pass = an unexplained survivor until legal ambiguity is established. **Run it, never read it** — cleanroom.

@@ -1,5 +1,12 @@
 # RAW coverage, the TIFF boundary, and a shared nomenclature
 
+The container and codec inventory below retains its original proposal and
+historical engineering labels. Current consumer verdict/reach semantics are
+defined in [`TERMINOLOGY.md`](../TERMINOLOGY.md) and mapped in
+[`validate_integration.md`](validate_integration.md); its consumer depths are
+`structural`, `mktp`, and `full`. The older `partial`/`deep`/`strict` ladder does
+not add consumer wire statuses or override the current single-provider graph.
+
 **Owner:** rawz (companion to `INTENT.md`, `docs/validate_integration.md`,
 and tiffz's `docs/tiff_raw_boundary.md`).
 **Author:** validate (Mecha Validate coordinator), 2026-08-05.

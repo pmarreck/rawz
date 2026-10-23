@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "rawz.h"
 
@@ -12,6 +13,7 @@
 } while (0)
 
 _Static_assert(RAWZ_STATUS_OK == 0, "success status must remain zero");
+_Static_assert(RAWZ_STATUS_LIMIT_EXCEEDED == 4, "published limit status changed");
 _Static_assert(RAWZ_FORMAT_DNG == 2, "published DNG value changed");
 _Static_assert(RAWZ_FORMAT_RAW_UNKNOWN == 10, "published format values changed");
 
@@ -32,6 +34,14 @@ int main(void) {
 	CHECK(rawz_validate_buffer((const uint8_t*)"not a TIFF", 10, &validation) == RAWZ_STATUS_OK);
 	CHECK(validation.verdict == RAWZ_VERDICT_REJECTED);
 	CHECK(validation.rejection == RAWZ_REJECTION_MALFORMED_TIFF);
+	static const uint8_t over_budget[] = {
+		'I', 'I', 0x2a, 0x00, 0x08, 0x00, 0x00, 0x00, 0xff, 0xff
+	};
+	validation.verdict = RAWZ_VERDICT_ACCEPTED;
+	uint8_t before_limit[sizeof(validation)];
+	memcpy(before_limit, &validation, sizeof(validation));
+	CHECK(rawz_validate_buffer(over_budget, sizeof(over_budget), &validation) == RAWZ_STATUS_LIMIT_EXCEEDED);
+	CHECK(memcmp(before_limit, &validation, sizeof(validation)) == 0);
 	CHECK(rawz_validate_buffer(NULL, 0, &validation) == RAWZ_STATUS_INVALID_ARGUMENT);
 	CHECK(rawz_validate_buffer(dng, sizeof(dng), NULL) == RAWZ_STATUS_INVALID_ARGUMENT);
 	CHECK(rawz_classify_buffer(NULL, 0, &format) == RAWZ_STATUS_INVALID_ARGUMENT);
